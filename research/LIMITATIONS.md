@@ -26,3 +26,14 @@ This file is updated as limitations are found. Every reported result must be rea
 ## Environment
 - The cloud development workspace cannot reach huggingface.co or unicode.org. Model-based work
   (Weeks 6–9) needs those hosts allowed or must run on the target Apple Silicon machine.
+
+## Models and metrics (Weeks 6–9)
+- No real model output exists yet, so CRSC values have never been computed on real data. The CRSC
+  definitions (v0.1) are fixed in advance but unvalidated.
+- The SafetyJudge refusal patterns are a short seed list. Classifier-to-safety mappings are explicit per
+  experiment, and the candidate classifier is a sentiment model used as a surrogate task, not a safety model.
+- EmojiGuard rule weights are hand-set; risk scores are unvalidated; detector scores are uncalibrated.
+- Detection labels are constructive (D-023) and do not capture whether a human perceives harm.
+- OCR probe observations (for example, Tesseract reading a Cyrillic look-alike as Latin, or misreading
+  emoji) come from a handful of hand-picked strings and are not findings.
+- The renderer's output depends on the installed fonts and the browser build, both of which are recorded in provenance.

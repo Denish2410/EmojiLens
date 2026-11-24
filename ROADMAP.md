@@ -63,25 +63,34 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [ ] **Real human annotation of ~100–150 pairs, at least two annotators on a stratified subset: blocked on recruitment (external dependency)**
 
 ## Week 6 — Models and Experiment Runner
-- [ ] Adapter interface (TOKENIZE, CLASSIFY, EMBED, GENERATE, VISION_INPUT, OCR)
-- [ ] Hugging Face classifier, Sentence Transformers embedding and small local generative model adapters (needs model selection and a resource check)
-- [ ] SafetyJudge that keeps response behaviour separate from the safety judgment
-- [ ] M4 migration: model versions, experiments and outputs; non-blocking worker with cancellation
-- [ ] Model Arena and Experiment Studio pages
+- [x] Adapter interface (TOKENIZE, CLASSIFY, EMBED, GENERATE, VISION_INPUT, OCR), metadata, tokenization traces, structured errors, lazy loading, LRU-bounded registry, CPU/MPS/CUDA selection, resource checks, availability detection
+- [x] SafetyJudge (response behaviour kept separate from safe/unsafe/unknown; a refusal is never treated as unsafe)
+- [x] M4: model versions, persistent experiments (cancel, interrupted-on-restart, resume), model outputs
+- [x] Model Arena, Experiment Studio (unit + E2E, three widths)
+- [x] Pinned-revision setup script and `docs/MODEL_SETUP_M4.md`
+- [x] Tesseract OCR adapter: **real inference verified** (eng, hin)
+- [ ] **Real inference with HF classifier, embedding, generative and VLM models: blocked (no access to huggingface.co)**
 
 ## Week 7 — Consistency and Evaluation
-- [ ] CRSC-sem and CRSC-safe specification (math), then implementation
-- [ ] Group-level bootstrap 95% CIs; flip counts; stratification
-- [ ] M5 migration; baselines; CRSC Analytics page
+- [x] CRSC specification v0.1 (`research/CRSC_SPECIFICATION.md`), separate CRSC-sem and CRSC-safe, group bootstrap CIs, flips, unknown and missing, stratification, identity controls (math sanity tests)
+- [x] M5 metric storage; compute and read API; not-reportable flags
+- [x] CRSC Analytics page
+- [ ] CRSC on real model outputs; comparison with human equivalence (blocked: models and annotators)
 
 ## Week 8 — Multimodal
-- [ ] Sandboxed Chromium renderer (no external resources), image hashing and provenance
-- [ ] Tesseract OCR for eng, hin and guj (**guj pack missing in the current dev container**)
-- [ ] Local VLM adapter; M6 migration; Multimodal Laboratory page
+- [x] Sandboxed Chromium renderer (escaped text, JS off, CSP, all requests aborted) with hash and provenance; Pillow fallback flagged
+- [x] Real render → Tesseract OCR path with grapheme-error comparison; `ocr` experiment modality
+- [x] M6 render artifacts; served by id with path containment
+- [x] Multimodal Laboratory
+- [ ] VLM path with a real model (blocked); Gujarati OCR locally (pack missing; installed in CI)
 
 ## Week 9 — EmojiGuard
-- [ ] Rule engine, learned detector (scikit-learn, group-aware), explainable aggregation and recommendations
-- [ ] M7 migration; baselines and ablations; FP/FN inspection; EmojiGuard Console and Evaluation Dashboard
+- [x] Rule engine with documented weights, located evidence, derived-view re-scoring, policy recommendations (block opt-in)
+- [x] Interpretable logistic detector (train split only, hash-verified artifacts, uncalibrated)
+- [x] Baselines (no defence, strip-invisibles, NFKC, keyword) and ablations (rules only, detector only, without decoders, without view re-scoring, without Indic awareness)
+- [x] Metrics with F1 bootstrap CIs, FP/FN inspection; M7
+- [x] EmojiGuard Console, Evaluation Dashboard
+- [ ] Off-the-shelf safety-classifier baseline (needs a model); evaluation on real data
 
 ## Week 10 — Final Experiments and Release
 - [ ] Freeze configs, run real experiments, final report generated from stored results

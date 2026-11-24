@@ -121,3 +121,27 @@ reporting agreement that does not exist.
 quality gates, so each commit is checked as committed.
 **Context:** CI run #5 failed on a formatting difference that existed only in the committed file. The
 working tree had been formatted, but that change was never staged.
+
+## D-021 Test doubles are opt-in and always labelled (2026-11-25)
+**Decision:** test-double adapters register only when `EMOJILENS_ENABLE_TEST_DOUBLES` is set (automated
+tests and layout QA). Every output stores `test_double`, and the UI shows a TEST DOUBLE badge.
+CRSC and evaluation results computed from them are marked not research-reportable.
+
+## D-022 Interruption is a terminal state, resumable explicitly (2026-11-25)
+**Decision:** at startup, experiments left `running` or `cancelling` become `interrupted`, never
+`completed`. Resuming re-queues the run, and existing outputs are skipped through a unique item key.
+
+## D-023 Constructive detection labels (2026-11-25)
+**Decision:** for EmojiGuard evaluation, an item is positive when its recipe applied a concealment or
+obfuscation family (unicode_smuggling, homoglyph, text_obfuscation, emoji_cipher). Emoji substitution
+and code-mixing are meaning-bearing, not concealing, and are negative. These are transformation labels,
+not human judgments, and that limitation is stated wherever results appear.
+
+## D-024 Renderer sandbox (2026-11-25)
+**Decision:** input is HTML-escaped into one element; JavaScript is disabled; a CSP sets
+`default-src 'none'`; the browser runs offline and every request is aborted, with blocked URLs recorded.
+Fonts are configurable but validated to letters, digits, spaces and hyphens.
+
+## D-025 Patch scripts must assert their targets (2026-11-25)
+**Context:** two silent no-op text replacements meant the API registry ignored pinned revisions
+(described in bfb7d0c, fixed in 87511c7). All scripted edits now assert that each target string exists.

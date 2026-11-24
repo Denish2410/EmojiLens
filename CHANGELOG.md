@@ -18,7 +18,14 @@ All notable changes are documented here. Format based on Keep a Changelog.
   endpoints, Transformation Laboratory, transformation taxonomy.
 - Week 5: human annotation workflow (M3, blinded queues, independent submissions, adjudication),
   Cohen's kappa and Krippendorff's alpha, Annotation Studio, draft guidelines.
+- Weeks 6–9: model adapter framework, SafetyJudge, real Tesseract OCR, pinned-revision setup, M4 experiments
+  with cancel, interrupt and resume; CRSC-sem and CRSC-safe (experimental) with group bootstrap, M5; sandboxed
+  Chromium renderer and OCR path, M6; EmojiGuard rules, detector, baselines and ablations, M7; Model Arena,
+  Experiment Studio, CRSC Analytics, Multimodal Laboratory, EmojiGuard Console, Evaluation Dashboard.
 ### Fixed
+- Annotation submit race (form now disabled while a submission is pending) and the flaky annotation E2E (CI #8).
+- API registry now applies model pins (wiring missing in bfb7d0c).
+- `.gitignore` `models/` also ignored the source package; anchored to `/models/`.
 - Raw invisible characters in test fixtures and the Inspector sample are now written as escapes.
 - Vitest no longer collects Playwright specs.
 - Monorepo foundation (uv and pnpm workspaces), project rules and memory files.

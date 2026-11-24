@@ -1,5 +1,24 @@
 # Test Report
 
+## 2026-11-25: Weeks 6–9
+
+| Suite | Result |
+|---|---|
+| Ruff, mypy strict (99 files), source hygiene | pass |
+| Pytest + Hypothesis | **293 passed** |
+| Real-engine subset (`-m real_ocr`: Tesseract, Chromium render → OCR, en + hi) | **5 passed** (real inference) |
+| Vitest | **34 passed** (11 files) |
+| Production build | pass |
+| Playwright E2E (real API, real render + OCR) | **28 passed** (14 specs × desktop/mobile) |
+| Flake check: full E2E in parallel CI mode on a fresh DB | 5/5 green after the annotation fix |
+
+**Not verified:** no Hugging Face model (classifier, embedding, generative, VLM) has ever been executed;
+those adapters have contract and availability tests only. CRSC and EmojiGuard evaluations have run only
+on the synthetic fixture with test doubles, as pipeline checks.
+
+**CI history:** run #8 failed on the annotation E2E race (fixed in 99d9271). Runs #9–#11 passed.
+
+
 ## 2026-11-24: Week 5 human annotation
 
 | Suite | Result |
