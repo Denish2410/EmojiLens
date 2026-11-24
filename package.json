@@ -1,0 +1,12 @@
+{
+  "name": "emojilens",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "web:dev": "pnpm --filter @emojilens/web dev",
+    "web:build": "pnpm --filter @emojilens/web build",
+    "web:test": "pnpm --filter @emojilens/web test",
+    "web:lint": "pnpm --filter @emojilens/web lint",
+    "web:typecheck": "pnpm --filter @emojilens/web typecheck"
+  }
+}

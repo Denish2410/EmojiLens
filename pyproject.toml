@@ -1,0 +1,57 @@
+[project]
+name = "emojilens-workspace"
+version = "0.1.0"
+description = "EmojiLens monorepo workspace root (not a distributable package)."
+requires-python = ">=3.11,<3.13"
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/core", "apps/api"]
+
+[tool.uv.sources]
+emojilens-core = { workspace = true }
+emojilens-api = { workspace = true }
+
+[dependency-groups]
+dev = [
+    "emojilens-core",
+    "emojilens-api",
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "httpx>=0.27",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["packages/core/src", "apps/api/src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "S", "SIM", "RUF", "PT"]
+ignore = ["S101"]
+
+[tool.ruff.lint.per-file-ignores]
+"**/tests/**" = ["S", "N802"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["packages/core/src", "apps/api/src"]
+
+[[tool.mypy.overrides]]
+module = ["regex", "regex.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["packages/core/tests", "apps/api/tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "real_model: requires downloaded model artifacts (excluded from default CI)",
+]
