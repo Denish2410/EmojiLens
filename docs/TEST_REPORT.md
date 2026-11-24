@@ -12,7 +12,7 @@ Google Chrome for Testing 153 (Playwright). The primary target, an Apple Silicon
 | Pytest + Hypothesis | `uv run pytest` | **36 passed** (23 core, 13 API) |
 | TypeScript | `pnpm web:typecheck` | pass |
 | ESLint | `pnpm web:lint` | 0 errors, 2 warnings (react-refresh export hints on provider hooks) |
-| Vitest + RTL + MSW | `pnpm web:test` | **11 passed** |
+| Vitest + RTL + MSW | `pnpm web:test` | **11 passed**; see the correction below |
 | Production build | `pnpm web:build` | pass (JS 99.6 kB gzip) |
 | Playwright E2E (real API, no mocks) | `playwright test` | **4 passed** (desktop + Pixel 7 × 2 specs) |
 
@@ -27,8 +27,13 @@ Google Chrome for Testing 153 (Playwright). The primary target, an Apple Silicon
   MSW mocks are used only in these unit tests.
 - E2E: the real API and browser together; the SHA-256 shown in the UI matches a Node-computed hash of the input.
 
+**Correction (CI run #1, 2026-11-24):** the Vitest command above actually exited non-zero.
+Vitest also collected `e2e/inspector.spec.ts` (a Playwright spec) and failed to load it,
+even though all 11 unit tests passed. The local check filtered output to the test count and
+missed the file-level failure. The fix limits Vitest to `src/**/*.test.{ts,tsx}`. Gates are now
+verified by exit code, not by filtered output.
+
 **Known gaps**
-- The CI workflow has not run on GitHub yet (no remote at the time of testing).
 - Headless Chrome in this container lacks Indic fonts, so Devanagari and Gujarati render as fallback glyphs in screenshots.
   The data path is correct. Font provisioning is tracked for Week 2 and Week 8.
 - No accessibility audit tool (such as axe) is wired in yet.
