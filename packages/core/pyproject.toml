@@ -6,6 +6,7 @@ requires-python = ">=3.11,<3.13"
 dependencies = [
     "confusable-homoglyphs>=3.3.1",
     "emoji>=2.12",
+    "pydantic>=2.8",
     "regex>=2024.5.15",
 ]
 

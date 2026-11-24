@@ -31,6 +31,9 @@ def dangerous(ch: str) -> bool:
         return True
     if 0x1F3FB <= cp <= 0x1F3FF or cp == 0x20E3:
         return True
+    nfkc = unicodedata.normalize("NFKC", ch)
+    if nfkc != ch and nfkc.isascii() and nfkc.isalnum():
+        return True  # fullwidth / mathematical / styled look-alikes of ASCII
     return bool(_CONFUSABLE.match(ch))
 
 
