@@ -1,4 +1,9 @@
 import type {
+  AgreementStats,
+  AnnotatorRow,
+  DisagreementRow,
+  GuidelineRow,
+  QueueItem,
   ApiErrorBody,
   ApplyResult,
   ChainStepIn,
@@ -75,6 +80,25 @@ export const api = {
     request<MultilingualResult>("/multilingual/analyze", { method: "POST", body: JSON.stringify({ text }) }),
   varieties: () => request<VarietyInfo[]>("/multilingual/varieties"),
   transforms: () => request<TransformSpec[]>("/transforms"),
+  annotators: () => request<AnnotatorRow[]>("/annotation/annotators"),
+  createAnnotator: (body: { pseudonym: string; proficiency: Record<string, string> }) =>
+    request<AnnotatorRow>("/annotation/annotators", { method: "POST", body: JSON.stringify(body) }),
+  guidelines: () => request<GuidelineRow[]>("/annotation/guidelines"),
+  createGuideline: (body: GuidelineRow) =>
+    request<GuidelineRow>("/annotation/guidelines", { method: "POST", body: JSON.stringify(body) }),
+  createTasks: (body: { dataset: string; version: number; recipe_hash: string; guideline_version: string; per_language: number }) =>
+    request<{ created: number; existing: number; by_language: Record<string, number> }>("/annotation/tasks", {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  queue: (annotator: string) =>
+    request<QueueItem | null>(`/annotation/queue?annotator=${encodeURIComponent(annotator)}`),
+  annotate: (taskId: number, body: { annotator: string; semantic_label: string; safety_label: string; note: string }) =>
+    request<{ task_id: number }>(`/annotation/tasks/${taskId}/annotations`, { method: "POST", body: JSON.stringify(body) }),
+  disagreements: () => request<DisagreementRow[]>("/annotation/disagreements"),
+  adjudicate: (taskId: number, body: { adjudicator: string; semantic_label: string; safety_label: string; rationale: string }) =>
+    request<{ task_id: number }>(`/annotation/tasks/${taskId}/adjudication`, { method: "POST", body: JSON.stringify(body) }),
+  agreement: () => request<AgreementStats>("/annotation/agreement"),
   applyChain: (body: { text: string; variety: string; seed: number; chain: ChainStepIn[] }) =>
     request<ApplyResult>("/transforms/apply", { method: "POST", body: JSON.stringify(body) }),
   generateVariants: (slug: string, n: number, body: { seed: number; chain: ChainStepIn[] }) =>

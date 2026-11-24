@@ -282,3 +282,42 @@ export interface GenerateResult {
   skipped_existing: number;
   invalid: number;
 }
+
+// ---- Annotation (v1) ----
+export interface AnnotatorRow {
+  pseudonym: string;
+  proficiency: Record<string, string>;
+  annotations: number;
+}
+export interface GuidelineRow {
+  version: string;
+  title: string;
+  body: string;
+}
+export interface QueueItem {
+  task_id: number;
+  guideline_version: string;
+  language: string;
+  source_text: string;
+  variant_text: string;
+  remaining: number;
+}
+export interface DisagreementRow {
+  task_id: number;
+  language: string;
+  source_text: string;
+  variant_text: string;
+  labels: { annotator: string; semantic_label: string; safety_label: string }[];
+}
+export interface AgreementStats {
+  field: string;
+  tasks_annotated: number;
+  tasks_with_two_or_more: number;
+  annotations: number;
+  alpha_nominal: number | null;
+  pairwise_kappa: { annotators: [string, string]; items: number; kappa: number | null }[];
+  label_counts: Record<string, number>;
+  unsure_treated_as_missing: boolean;
+  adjudicated: number;
+  note: string;
+}

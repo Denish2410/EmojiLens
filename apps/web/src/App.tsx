@@ -4,6 +4,7 @@ import { Link, Route, Routes } from "react-router";
 import { AppShell } from "./components/AppShell";
 import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./lib/theme";
+import { AnnotationStudio } from "./pages/AnnotationStudio";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
 import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
@@ -30,6 +31,7 @@ export function AppRoutes() {
         <Route path="transforms" element={<TransformLab />} />
         <Route path="multilingual" element={<MultilingualLab />} />
         <Route path="datasets" element={<DatasetExplorer />} />
+        <Route path="annotation" element={<AnnotationStudio />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>
