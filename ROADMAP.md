@@ -18,7 +18,7 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [x] Web shell: sidebar, mobile drawer, breadcrumbs, theme switch, toasts, skip link
 - [x] Unicode Inspector shell: editor, grapheme strip, code point table, UTF-8/UTF-16 offsets, invisible markers, copy original
 - [x] CI workflow: ruff, mypy, pytest, tsc, eslint, vitest, build, Playwright
-  - *Pending:* first green run on GitHub Actions
+  - Verified: GitHub Actions run #2 green (backend, frontend, E2E)
 - [ ] Research foundation: proposal, objectives and threat model are drafted; the **literature review with verified references** is not done yet
 
 ## Week 2 — Unicode Forensics
