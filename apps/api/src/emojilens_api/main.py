@@ -11,7 +11,7 @@ from emojilens_api import __version__
 from emojilens_api.config import Settings, get_settings
 from emojilens_api.db import make_engine, make_sessionmaker
 from emojilens_api.errors import install_error_handlers
-from emojilens_api.routers import datasets, multilingual, system, transforms, unicode
+from emojilens_api.routers import annotation, datasets, multilingual, system, transforms, unicode
 
 API_PREFIX = "/api/v1"
 
@@ -46,4 +46,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(multilingual.router, prefix=API_PREFIX)
     app.include_router(datasets.router, prefix=API_PREFIX)
     app.include_router(transforms.router, prefix=API_PREFIX)
+    app.include_router(annotation.router, prefix=API_PREFIX)
     return app

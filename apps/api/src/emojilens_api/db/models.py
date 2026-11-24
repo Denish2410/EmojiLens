@@ -114,3 +114,66 @@ class Variant(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     source: Mapped[Source] = relationship()
+
+
+# ----------------------------------------------------------------------------- M3: annotation
+
+
+class Annotator(Base):
+    __tablename__ = "annotators"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    pseudonym: Mapped[str] = mapped_column(String(64), unique=True)
+    proficiency: Mapped[dict[str, str]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Guideline(Base):
+    __tablename__ = "guidelines"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    version: Mapped[str] = mapped_column(String(32), unique=True)
+    title: Mapped[str] = mapped_column(String(200))
+    body: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class AnnotationTask(Base):
+    __tablename__ = "annotation_tasks"
+    __table_args__ = (
+        UniqueConstraint("variant_id", "guideline_id", name="uq_tasks_variant_guideline"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    variant_id: Mapped[int] = mapped_column(ForeignKey("variants.id", ondelete="CASCADE"))
+    guideline_id: Mapped[int] = mapped_column(ForeignKey("guidelines.id", ondelete="RESTRICT"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Annotation(Base):
+    __tablename__ = "annotations"
+    __table_args__ = (
+        UniqueConstraint("task_id", "annotator_id", name="uq_annotations_task_annotator"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("annotation_tasks.id", ondelete="CASCADE"))
+    annotator_id: Mapped[int] = mapped_column(ForeignKey("annotators.id", ondelete="RESTRICT"))
+    semantic_label: Mapped[str] = mapped_column(String(16))
+    safety_label: Mapped[str] = mapped_column(String(16))
+    note: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Adjudication(Base):
+    __tablename__ = "adjudications"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    task_id: Mapped[int] = mapped_column(
+        ForeignKey("annotation_tasks.id", ondelete="CASCADE"), unique=True
+    )
+    semantic_label: Mapped[str] = mapped_column(String(16))
+    safety_label: Mapped[str] = mapped_column(String(16))
+    adjudicator: Mapped[str] = mapped_column(String(64))
+    rationale: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
