@@ -7,6 +7,7 @@ import { ThemeProvider } from "./lib/theme";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
 import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
+import { TransformLab } from "./pages/TransformLab";
 import { UnicodeInspector } from "./pages/UnicodeInspector";
 
 function NotFound() {
@@ -26,6 +27,7 @@ export function AppRoutes() {
       <Route element={<AppShell />}>
         <Route index element={<Overview />} />
         <Route path="inspector" element={<UnicodeInspector />} />
+        <Route path="transforms" element={<TransformLab />} />
         <Route path="multilingual" element={<MultilingualLab />} />
         <Route path="datasets" element={<DatasetExplorer />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />

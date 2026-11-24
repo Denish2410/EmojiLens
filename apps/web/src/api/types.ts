@@ -218,3 +218,67 @@ export interface VarietyInfo {
   cldr_locale: string | null;
   notes: string;
 }
+
+// ---- Transforms (v1) ----
+export interface TransformParam {
+  name: string;
+  kind: "float" | "int" | "choice" | "string" | "bool";
+  default: unknown;
+  description: string;
+  choices: string[];
+  minimum: number | null;
+  maximum: number | null;
+}
+
+export interface TransformSpec {
+  id: string;
+  version: string;
+  family: string;
+  description: string;
+  varieties: string[];
+  params: TransformParam[];
+  seeded: boolean;
+  reversible: boolean;
+}
+
+export interface ChainStepIn {
+  transform_id: string;
+  params: Record<string, unknown>;
+}
+
+export type Piece = [number, number, string];
+
+export interface StepOut {
+  transform_id: string;
+  version: string;
+  family: string;
+  params: Record<string, unknown>;
+  seed: number;
+  output: string;
+  edits: number;
+  valid: boolean;
+  checks: Record<string, boolean | null>;
+  notes: string[];
+  provenance: Record<string, unknown>;
+  pieces: Piece[];
+}
+
+export interface ApplyResult {
+  original: string;
+  original_sha256: string;
+  output: string;
+  output_sha256: string;
+  variety: string;
+  seed: number;
+  chain_hash: string;
+  valid: boolean;
+  steps: StepOut[];
+  pieces: Piece[];
+}
+
+export interface GenerateResult {
+  recipe_hash: string;
+  created: number;
+  skipped_existing: number;
+  invalid: number;
+}

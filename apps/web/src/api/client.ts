@@ -1,5 +1,9 @@
 import type {
   ApiErrorBody,
+  ApplyResult,
+  ChainStepIn,
+  GenerateResult,
+  TransformSpec,
   Dataset,
   DatasetKind,
   Health,
@@ -70,6 +74,14 @@ export const api = {
   multilingual: (text: string) =>
     request<MultilingualResult>("/multilingual/analyze", { method: "POST", body: JSON.stringify({ text }) }),
   varieties: () => request<VarietyInfo[]>("/multilingual/varieties"),
+  transforms: () => request<TransformSpec[]>("/transforms"),
+  applyChain: (body: { text: string; variety: string; seed: number; chain: ChainStepIn[] }) =>
+    request<ApplyResult>("/transforms/apply", { method: "POST", body: JSON.stringify(body) }),
+  generateVariants: (slug: string, n: number, body: { seed: number; chain: ChainStepIn[] }) =>
+    request<GenerateResult>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/variants`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
   datasets: () => request<Dataset[]>("/datasets"),
   dataset: (slug: string) => request<Dataset>(`/datasets/${encodeURIComponent(slug)}`),
   createDataset: (body: { slug: string; name: string; description: string; kind: DatasetKind; license: string }) =>

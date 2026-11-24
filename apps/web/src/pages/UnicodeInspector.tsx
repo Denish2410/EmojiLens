@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Copy, ScanSearch } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "react-router";
 import { ApiError, api } from "../api/client";
 import type { Codepoint, UnicodeAnalysis } from "../api/types";
 import { EvidencePanel, type Selection } from "../components/inspector/EvidencePanel";
@@ -44,7 +45,9 @@ function graphemeDisplay(text: string, cps: Codepoint[]): string {
 }
 
 export function UnicodeInspector() {
-  const [text, setText] = useState(SAMPLE);
+  const location = useLocation();
+  const handedOver = (location.state as { text?: unknown } | null)?.text;
+  const [text, setText] = useState(typeof handedOver === "string" ? handedOver : SAMPLE);
   const [selection, setSelection] = useState<Selection | null>(null);
   const toast = useToast();
   const mutation = useMutation<UnicodeAnalysis, ApiError, string>({
