@@ -5,28 +5,36 @@ from __future__ import annotations
 import unicodedata
 from dataclasses import dataclass
 
+import emoji
 import regex
 
 from emojilens_core.unicode.codepoints import CodepointInfo, inspect_codepoints
+from emojilens_core.unicode.evidence import RULESET_VERSION, Evidence, classify
 from emojilens_core.unicode.graphemes import Grapheme, segment_graphemes
 from emojilens_core.unicode.integrity import original_sha256
 from emojilens_core.unicode.offsets import OffsetTable
+from emojilens_core.unicode.scripts import ScriptProfile, script_profile
+from emojilens_core.unicode.views import DerivedView, build_views
 
-ENGINE_VERSION = "0.1.0"
+ENGINE_VERSION = "0.2.0"
 
 
 @dataclass(frozen=True, slots=True)
 class EngineInfo:
     engine_version: str
+    ruleset_version: str
     unicodedata_version: str
     regex_version: str
+    emoji_version: str
 
 
 def engine_info() -> EngineInfo:
     return EngineInfo(
         engine_version=ENGINE_VERSION,
+        ruleset_version=RULESET_VERSION,
         unicodedata_version=unicodedata.unidata_version,
         regex_version=str(getattr(regex, "__version__", "unknown")),
+        emoji_version=str(getattr(emoji, "__version__", "unknown")),
     )
 
 
@@ -55,6 +63,9 @@ class UnicodeAnalysis:
     graphemes: list[Grapheme]
     codepoints: list[CodepointInfo]
     invisible_count: int
+    scripts: ScriptProfile
+    evidence: list[Evidence]
+    views: list[DerivedView]
     engine: EngineInfo
 
 
@@ -68,6 +79,8 @@ def analyze(text: str) -> UnicodeAnalysis:
     table = OffsetTable.build(text)
     graphemes = segment_graphemes(text, table)
     codepoints = inspect_codepoints(text, table)
+    evidence = classify(text, graphemes, table)
+    views = build_views(text, graphemes, codepoints, evidence, table)
     return UnicodeAnalysis(
         original=text,
         sha256=digest,
@@ -86,5 +99,8 @@ def analyze(text: str) -> UnicodeAnalysis:
         graphemes=graphemes,
         codepoints=codepoints,
         invisible_count=sum(1 for c in codepoints if c.invisible),
+        scripts=script_profile(text),
+        evidence=evidence,
+        views=views,
         engine=engine_info(),
     )
