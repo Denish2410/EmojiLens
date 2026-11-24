@@ -1,5 +1,20 @@
 # Test Report
 
+## 2026-11-24: Week 3 multilingual and datasets
+
+| Suite | Result |
+|---|---|
+| Ruff, mypy strict, source hygiene | pass |
+| Pytest + Hypothesis | **158 passed** (core incl. 29 benign-fixture cases, API 25, repo 2) |
+| TypeScript, ESLint (0 errors), Vitest | pass, **21 passed** |
+| Production build | pass |
+| Playwright E2E (real API) | **10 passed** (5 specs × desktop/mobile) |
+
+Observed on the synthetic benign fixture (28 records; synthetic, not research data): declared vs.
+heuristic language agree 23, disagree 4, undetected 1. With seed 20261124, the split was train 19,
+validation 5, test 4, and there was no leakage.
+
+
 ## 2026-11-24: Week 2 Unicode forensics
 
 Same environment as below. All gates were run and judged by exit code:

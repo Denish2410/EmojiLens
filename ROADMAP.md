@@ -33,13 +33,16 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [x] Source hygiene guard: no raw invisible/confusable characters in source files
 
 ## Week 3 — Multilingual and Dataset Foundation
-- [ ] Script detection and language metadata for en, hi, gu, hi-Latn and gu-Latn, recording uncertainty
-- [ ] CLDR emoji annotations (en, hi, gu)
-- [ ] M1 migration: datasets, sources, versions and manifests
-- [ ] JSONL import with schema validation, hashing and duplicate detection
-- [ ] Group-aware frozen splits and automated leakage tests
-- [ ] Benign controls; synthetic fixtures tracked separately
-- [ ] Dataset Explorer page
+- [x] Variety identification for en, hi, gu, hi-Latn and gu-Latn that records uncertainty (thin evidence, margin, unknown tokens); CMI and switch points
+  - *AC:* each variety identified on test sentences; unknown text is left undetermined rather than guessed (tested)
+- [x] CLDR 49 emoji annotations (en, hi, gu, hi-Latn), vendored with the license; gu-Latn fallbacks flagged
+- [x] M1 migration: datasets, versions, sources; a test asserts ORM and migrations agree
+- [x] JSONL import: strict schema v1, line-numbered errors that don't echo text, all-or-nothing, content hash, exact and normalized duplicate detection, upload size limit
+- [x] Group-aware frozen splits (deterministic per-group hashing) and automated leakage tests (core, API, E2E)
+- [x] Benign controls: 28-record synthetic fixture across five varieties, never escalated above informational (tested); synthetic datasets flagged and excluded from results
+- [x] Dataset Explorer and Multilingual Laboratory pages (unit + E2E)
+- [x] Annotation recruitment preparation (`research/ANNOTATION_PLAN.md`); **recruitment itself is an external dependency**
+- [ ] Multilingual *semantic* comparison (needs the embedding adapter, Week 6)
 
 ## Week 4 — Transformation Engine
 - [ ] Six families (Unicode smuggling, emoji substitution, emoji cipher, homoglyph, text obfuscation, code-mixing) plus identity

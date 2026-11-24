@@ -10,6 +10,9 @@ All notable changes are documented here. Format based on Keep a Changelog.
   view panels.
 - `scripts/source_hygiene.py` and a repository test that rejects raw invisible or confusable characters
   in source code.
+- Week 3: language-variety identification with uncertainty and CMI, CLDR 49 emoji meanings,
+  M1 dataset storage, strict JSONL import, group-aware frozen splits, leakage validation, a synthetic
+  benign-control fixture, Dataset Explorer and Multilingual Lab pages.
 ### Fixed
 - Raw invisible characters in test fixtures and the Inspector sample are now written as escapes.
 - Vitest no longer collects Playwright specs.

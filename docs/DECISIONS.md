@@ -66,3 +66,28 @@ bytes as hex. Nothing is guessed, and decoded text is never executed or rendered
 **Decision:** each view is a list of `(original span, view span, text)` segments that tile the original
 exactly once. NFC and NFKC are applied per grapheme, falling back to a single segment if the
 concatenation differs from whole-string normalization, so correctness never depends on segmentation.
+
+## D-012 Heuristic, transparent language identification (2026-11-24)
+**Decision:** use script plus seed-lexicon identification, with fractional counts for ambiguous words
+and explicit uncertainty reasons, instead of a pretrained language-ID model.
+**Rationale:** no model download is possible in this environment, and off-the-shelf language-ID models
+rarely support hi-Latn or gu-Latn. A transparent baseline is auditable and cannot quietly fabricate certainty.
+**Revisit:** when models can be downloaded, compare against a learned identifier on human-labelled data.
+
+## D-013 CLDR annotations from the official cldr-json npm packages (2026-11-24)
+**Decision:** vendor a derived subset (name and keywords for en, hi, gu, hi-Latn) of
+`cldr-annotations-full` and `cldr-annotations-derived-full` 49.0.0, which are published by the Unicode CLDR
+project under Unicode-3.0. `scripts/vendor_cldr_annotations.py` regenerates the subset reproducibly.
+**Tradeoff:** 3.5 MB of vendored JSON in the package.
+
+## D-014 Datasets are immutable versions; splits assigned at freeze (2026-11-24)
+**Decision:** every import creates a new numbered version with a content hash. Freezing assigns splits
+once, by hashing `seed:source_group`, and cannot be repeated (409). The leakage check runs at freeze time.
+**Rationale:** group-level assignment happens before any transformation (Week 4), so all variants of a
+source inherit its split, and adding groups never moves existing ones.
+
+## D-015 Dataset upload as a raw request body (2026-11-24)
+**Decision:** `POST /datasets/{slug}/versions` takes the JSONL as an `application/x-ndjson` body,
+streamed with a byte limit, instead of multipart.
+**Rationale:** no file is ever written to a path derived from user input (no path traversal), and no extra
+dependency is needed.

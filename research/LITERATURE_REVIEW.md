@@ -16,4 +16,7 @@ clustered data.
 _None yet._
 
 ## Unverified
-_None yet._
+- Das, A. & Gambäck, B. (2014). Identifying languages at the word level in code-mixed Indian social
+  media text. *Proc. ICON 2014.* Cited for the Code-Mixing Index (CMI) formula used in
+  `multilingual/identify.py`. **Not yet checked against the paper.** Until it is verified, the
+  formula is treated as an implementation choice, not as a cited claim.
