@@ -6,6 +6,7 @@ from logging.config import fileConfig
 from alembic import context
 
 from emojilens_api.db import Base, make_engine
+from emojilens_api.db import models as _models  # noqa: F401  (register tables)
 
 config = context.config
 if config.config_file_name is not None and config.attributes.get("configure_logger", True):

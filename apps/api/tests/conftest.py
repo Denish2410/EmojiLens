@@ -24,6 +24,8 @@ def migrated_db_url(db_url: str) -> str:
 
 @pytest.fixture
 def client(migrated_db_url: str) -> Iterator[TestClient]:
-    settings = Settings(database_url=migrated_db_url, max_input_codepoints=100)
+    settings = Settings(
+        database_url=migrated_db_url, max_input_codepoints=100, max_upload_bytes=1_000_000
+    )
     with TestClient(create_app(settings)) as c:
         yield c
