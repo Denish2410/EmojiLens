@@ -1,0 +1,44 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+import { Link, Route, Routes } from "react-router";
+import { AppShell } from "./components/AppShell";
+import { ToastProvider } from "./components/Toast";
+import { ThemeProvider } from "./lib/theme";
+import { Overview } from "./pages/Overview";
+import { UnicodeInspector } from "./pages/UnicodeInspector";
+
+function NotFound() {
+  return (
+    <div className="mx-auto max-w-md py-16 text-center">
+      <h1 className="text-lg font-semibold">Page not found</h1>
+      <Link to="/" className="mt-3 inline-block text-sm text-violet-500 hover:underline">
+        Back to overview
+      </Link>
+    </div>
+  );
+}
+
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<AppShell />}>
+        <Route index element={<Overview />} />
+        <Route path="inspector" element={<UnicodeInspector />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
+    </Routes>
+  );
+}
+
+export function Providers({ children }: { children: React.ReactNode }) {
+  const [client] = useState(
+    () => new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false } } }),
+  );
+  return (
+    <QueryClientProvider client={client}>
+      <ThemeProvider>
+        <ToastProvider>{children}</ToastProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  );
+}
