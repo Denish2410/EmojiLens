@@ -9,7 +9,7 @@ import { Badge, Button, Card, CardHeader } from "../components/ui";
 import { copyText } from "../lib/clipboard";
 
 const SAMPLE =
-  "Hi​ 👨‍👩‍👧 👍🏽 1️⃣ 🇮🇳 क्‍ष ક્‌ષ";
+  "Hi\u200b 👨\u200d👩\u200d👧 👍\u{1F3FD} 1\ufe0f\u20e3 🇮🇳 क्\u200dष ક્\u200cષ";
 
 const KIND_TONE: Record<string, "cyan" | "violet" | "amber" | "neutral"> = {
   zero_width: "amber",

@@ -23,7 +23,7 @@ def test_digest_is_over_original_bytes_not_normalized() -> None:
 
 
 def test_whitespace_and_invisibles_are_not_trimmed() -> None:
-    assert original_sha256(" a​ ") != original_sha256("a")
+    assert original_sha256(" a\u200b ") != original_sha256("a")
 
 
 @pytest.mark.parametrize("cp", [0xD800, 0xDBFF, 0xDC00, 0xDFFF])

@@ -9,7 +9,7 @@ URL = "/api/v1/unicode/analyze"
 
 
 def test_analyze_preserves_input_and_hash(client: TestClient) -> None:
-    text = "  hi​ \U0001f468‍\U0001f469‍\U0001f467 ક્‌ષ\n"
+    text = "  hi\u200b \U0001f468\u200d\U0001f469\u200d\U0001f467 ક્\u200cષ\n"
     r = client.post(URL, json={"text": text})
     assert r.status_code == 200
     body = r.json()

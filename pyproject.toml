@@ -50,7 +50,7 @@ module = ["regex", "regex.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-testpaths = ["packages/core/tests", "apps/api/tests"]
+testpaths = ["packages/core/tests", "apps/api/tests", "tests"]
 addopts = "-ra --strict-markers"
 markers = [
     "real_model: requires downloaded model artifacts (excluded from default CI)",

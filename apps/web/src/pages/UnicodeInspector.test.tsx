@@ -8,18 +8,18 @@ import { server } from "../test/server";
 
 // Shape-correct API response for "a" + ZWSP + 😀 (values mirror the real engine).
 const response: UnicodeAnalysis = {
-  original: "a​\u{1F600}",
+  original: "a\u200b\u{1F600}",
   sha256: "deadbeef".repeat(8),
   lengths: { codepoints: 3, graphemes: 3, utf8_bytes: 8, utf16_units: 4 },
   normalization: { is_nfc: true, is_nfd: true, is_nfkc: true, is_nfkd: true },
   graphemes: [
     { index: 0, text: "a", span: span(0, 1, 0, 1, 0, 1), codepoint_count: 1 },
-    { index: 1, text: "​", span: span(1, 2, 1, 4, 1, 2), codepoint_count: 1 },
+    { index: 1, text: "\u200b", span: span(1, 2, 1, 4, 1, 2), codepoint_count: 1 },
     { index: 2, text: "\u{1F600}", span: span(2, 3, 4, 8, 2, 4), codepoint_count: 1 },
   ],
   codepoints: [
     cp(0, "a", "U+0061", "LATIN SMALL LETTER A", "Ll", "61", span(0, 1, 0, 1, 0, 1), [], false),
-    cp(1, "​", "U+200B", "ZERO WIDTH SPACE", "Cf", "E2 80 8B", span(1, 2, 1, 4, 1, 2), ["zero_width"], true),
+    cp(1, "\u200b", "U+200B", "ZERO WIDTH SPACE", "Cf", "E2 80 8B", span(1, 2, 1, 4, 1, 2), ["zero_width"], true),
     cp(2, "\u{1F600}", "U+1F600", "GRINNING FACE", "So", "F0 9F 98 80", span(2, 3, 4, 8, 2, 4), [], false),
   ],
   invisible_count: 1,
@@ -59,10 +59,10 @@ describe("Unicode Inspector", () => {
     renderApp("/inspector");
     const box = screen.getByLabelText("Original text");
     // fireEvent keeps the exact string; userEvent.type would interpret special chars.
-    fireEvent.change(box, { target: { value: "  a​\u{1F600}\n" } });
+    fireEvent.change(box, { target: { value: "  a\u200b\u{1F600}\n" } });
     await user.click(screen.getByRole("button", { name: /analyse/i }));
     await screen.findByTestId("sha256");
-    expect(received).toEqual({ text: "  a​\u{1F600}\n" });
+    expect(received).toEqual({ text: "  a\u200b\u{1F600}\n" });
   });
 
   it("renders integrity, graphemes, code points and invisible markers", async () => {

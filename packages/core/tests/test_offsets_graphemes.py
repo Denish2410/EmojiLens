@@ -44,17 +44,17 @@ def test_utf16_offset_inside_surrogate_pair_rejected() -> None:
     ("text", "expected"),
     [
         # Family ZWJ sequence is one grapheme
-        ("\U0001f468‍\U0001f469‍\U0001f467", 1),
+        ("\U0001f468\u200d\U0001f469\u200d\U0001f467", 1),
         # Thumbs up + skin tone modifier
         ("\U0001f44d\U0001f3fd", 1),
         # Keycap one: 1 + VS16 + U+20E3
-        ("1️⃣", 1),
+        ("1\ufe0f\u20e3", 1),
         # Flag of India: regional indicators I + N
         ("\U0001f1ee\U0001f1f3", 1),
         # Subdivision flag (England): black flag + tag sequence
         ("\U0001f3f4\U000e0067\U000e0062\U000e0065\U000e006e\U000e0067\U000e007f", 1),
         # Red heart with emoji presentation selector
-        ("❤️", 1),
+        ("❤\ufe0f", 1),
     ],
 )
 def test_emoji_sequences_are_single_graphemes(text: str, expected: int) -> None:
@@ -62,8 +62,8 @@ def test_emoji_sequences_are_single_graphemes(text: str, expected: int) -> None:
 
 
 def test_devanagari_conjunct_with_zwj_preserved() -> None:
-    # क्‍ष : KA + VIRAMA + ZWJ + SSA — legitimate half-form request.
-    text = "क्‍ष"
+    # क्\u200dष : KA + VIRAMA + ZWJ + SSA — legitimate half-form request.
+    text = "क्\u200dष"
     result = analyze(text)
     assert result.original == text
     joined = "".join(g.text for g in result.graphemes)
@@ -74,8 +74,8 @@ def test_devanagari_conjunct_with_zwj_preserved() -> None:
 
 
 def test_gujarati_with_zwnj_preserved() -> None:
-    # ક્‌ષ : Gujarati KA + VIRAMA + ZWNJ + SSA
-    text = "ક્‌ષ"
+    # ક્\u200cષ : Gujarati KA + VIRAMA + ZWNJ + SSA
+    text = "ક્\u200cષ"
     result = analyze(text)
     assert result.original == text
     assert result.lengths.codepoints == 4
@@ -94,7 +94,7 @@ def test_analysis_lengths_and_normalization() -> None:
 
 
 def test_invisible_markers_are_descriptive_not_verdicts() -> None:
-    text = "a​b‮c\U000e0041"
+    text = "a\u200bb\u202ec\U000e0041"
     result = analyze(text)
     kinds = {c.codepoint: c.kinds for c in result.codepoints}
     assert "zero_width" in kinds["U+200B"]

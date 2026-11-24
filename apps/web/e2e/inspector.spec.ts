@@ -8,7 +8,7 @@ test("overview shows the real API as live and ready", async ({ page }) => {
 });
 
 test("analyses Unicode input end to end and preserves it exactly", async ({ page }) => {
-  const input = " Hi​ 👨‍👩‍👧 क्‍ष ક્‌ષ ";
+  const input = " Hi\u200b 👨\u200d👩\u200d👧 क्\u200dष ક્\u200cષ ";
   const expectedSha = createHash("sha256").update(Buffer.from(input, "utf8")).digest("hex");
 
   await page.goto("/inspector");
