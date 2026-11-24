@@ -7,6 +7,7 @@ from typing import Any
 
 from sqlalchemy import (
     JSON,
+    Boolean,
     CheckConstraint,
     DateTime,
     Float,
@@ -85,3 +86,31 @@ class Source(Base):
     license: Mapped[str] = mapped_column(String(128))
     meta: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
     split: Mapped[str | None] = mapped_column(String(16), nullable=True)
+
+
+class Variant(Base):
+    """M2: a transformed variant of a source. Inherits the source's split (never re-assigned)."""
+
+    __tablename__ = "variants"
+    __table_args__ = (
+        UniqueConstraint("source_id", "recipe_hash", name="uq_variants_source_recipe"),
+        Index("ix_variants_version_recipe", "version_id", "recipe_hash"),
+        Index("ix_variants_version_split", "version_id", "split"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    version_id: Mapped[int] = mapped_column(ForeignKey("dataset_versions.id", ondelete="CASCADE"))
+    recipe_hash: Mapped[str] = mapped_column(String(64))
+    chain_hash: Mapped[str] = mapped_column(String(64))
+    recipe: Mapped[dict[str, Any]] = mapped_column(JSON)
+    families: Mapped[str] = mapped_column(String(256))
+    text: Mapped[str] = mapped_column(Text)
+    text_sha256: Mapped[str] = mapped_column(String(64))
+    pieces: Mapped[list[Any]] = mapped_column(JSON)
+    steps: Mapped[list[Any]] = mapped_column(JSON)
+    valid: Mapped[bool] = mapped_column(Boolean)
+    split: Mapped[str] = mapped_column(String(16))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    source: Mapped[Source] = relationship()

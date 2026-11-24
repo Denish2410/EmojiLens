@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from emojilens_api.db import utcnow
-from emojilens_api.db.models import Dataset, DatasetVersion, Source
+from emojilens_api.db.models import Dataset, DatasetVersion, Source, Variant
 from emojilens_api.errors import ApiError
 from emojilens_core.datasets import (
     SCHEMA_VERSION,
@@ -133,7 +133,29 @@ def leakage(session: Session, version: DatasetVersion) -> list[LeakageIssue]:
             Source.version_id == version.id
         )
     ).all()
-    return check_leakage([LeakageRow(r[0], r[1], r[2], r[3]) for r in rows])
+    leak_rows = [LeakageRow(r[0], r[1], r[2], r[3]) for r in rows]
+    variant_rows = session.execute(
+        select(
+            Variant.id,
+            Source.external_id,
+            Source.source_group,
+            Variant.split,
+            Variant.text,
+            Source.split,
+        )
+        .join(Source, Variant.source_id == Source.id)
+        .where(Variant.version_id == version.id)
+    ).all()
+    mismatches = [
+        LeakageIssue("variant_split_mismatch", (f"{ext}#v{vid}",), (str(vsplit), str(ssplit)))
+        for vid, ext, _g, vsplit, _t, ssplit in variant_rows
+        if vsplit != ssplit
+    ]
+    leak_rows += [
+        LeakageRow(f"{ext}#v{vid}", group, vsplit, text)
+        for vid, ext, group, vsplit, text, _ in variant_rows
+    ]
+    return mismatches + check_leakage(leak_rows)
 
 
 def _counts(session: Session, version_id: int, column: Any) -> dict[str, int]:
@@ -152,6 +174,14 @@ def stats(session: Session, version: DatasetVersion) -> dict[str, dict[str, int]
         "split": _counts(session, version.id, Source.split),
         "safety_label": _counts(session, version.id, Source.safety_label),
         "control": _counts(session, version.id, Source.control),
+        "variants_by_split": {
+            str(k): int(n)
+            for k, n in session.execute(
+                select(Variant.split, func.count())
+                .where(Variant.version_id == version.id)
+                .group_by(Variant.split)
+            ).all()
+        },
     }
 
 

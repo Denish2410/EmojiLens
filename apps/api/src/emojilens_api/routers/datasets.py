@@ -245,4 +245,3 @@ def sources(
         page_size=page_size,
         items=[SourceOut.model_validate(r) for r in rows],
     )
-
