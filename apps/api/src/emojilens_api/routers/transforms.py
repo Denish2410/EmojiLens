@@ -6,7 +6,7 @@ from typing import Annotated, Any
 
 from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import func, select
+from sqlalchemy import case, func, select
 
 from emojilens_api.db.models import Source, Variant
 from emojilens_api.errors import ApiError, ErrorResponse
@@ -325,3 +325,44 @@ def list_variants(
                 for v, s in rows
             ],
         )
+
+
+class RecipeOut(BaseModel):
+    recipe_hash: str
+    families: str
+    seed: int
+    variants: int
+    invalid: int
+
+
+@router.get("/datasets/{slug}/versions/{number}/recipes", response_model=list[RecipeOut])
+def list_recipes(slug: str, number: int, request: Request) -> list[RecipeOut]:
+    """Distinct transformation recipes applied to a version, with variant counts."""
+    with request.app.state.sessionmaker() as session:
+        version = svc.get_version(session, slug, number)
+        rows = session.execute(
+            select(
+                Variant.recipe_hash,
+                Variant.families,
+                func.count(),
+                func.sum(case((Variant.valid.is_(False), 1), else_=0)),
+                func.min(Variant.id),
+            )
+            .where(Variant.version_id == version.id)
+            .group_by(Variant.recipe_hash, Variant.families)
+            .order_by(func.min(Variant.id))
+        ).all()
+        out = []
+        for recipe_hash, families, n, invalid, first_id in rows:
+            first = session.get(Variant, first_id)
+            seed = int(first.recipe.get("seed", 0)) if first else 0
+            out.append(
+                RecipeOut(
+                    recipe_hash=recipe_hash,
+                    families=families,
+                    seed=seed,
+                    variants=n,
+                    invalid=int(invalid or 0),
+                )
+            )
+        return out

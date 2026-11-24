@@ -112,3 +112,13 @@ def test_generate_variants_inherit_splits_without_leakage(client: TestClient) ->
     detail = client.get("/api/v1/datasets/dd/versions/1").json()
     assert detail["leakage"] == []
     assert sum(detail["stats"]["variants_by_split"].values()) == 20
+
+
+def test_list_recipes(client: TestClient) -> None:
+    setup_dataset(client)
+    client.post("/api/v1/datasets/dd/versions/1/variants", json={"seed": 1, "chain": CHAIN})
+    recipes = client.get("/api/v1/datasets/dd/versions/1/recipes").json()
+    assert len(recipes) == 1
+    assert recipes[0]["families"] == "unicode_smuggling"
+    assert recipes[0]["variants"] == 20
+    assert recipes[0]["seed"] == 1

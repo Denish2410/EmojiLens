@@ -6,6 +6,10 @@ docs/MODEL_SETUP_M4.md). Revisions are ``None`` until pinned on the target machi
 
 from __future__ import annotations
 
+import json
+from dataclasses import replace
+from pathlib import Path
+
 from emojilens_core.models.adapters.huggingface import (
     HFClassifierAdapter,
     HFGenerativeAdapter,
@@ -73,10 +77,30 @@ ADAPTERS = {
 }
 
 
-def default_registry(device: str = "cpu", max_loaded: int = 2) -> ModelRegistry:
+def load_pins(path: Path | None) -> dict[str, dict[str, str]]:
+    """Read revisions pinned by scripts/setup_models.py ({key: {revision, tokenizer_revision}})."""
+    if path is None or not path.is_file():
+        return {}
+    data = json.loads(path.read_text("utf-8"))
+    return {
+        k: v for k, v in data.get("pins", {}).items() if isinstance(v, dict) and v.get("revision")
+    }
+
+
+def default_registry(
+    device: str = "cpu", max_loaded: int = 2, pins_path: Path | None = None
+) -> ModelRegistry:
     reg = ModelRegistry(device=device, max_loaded=max_loaded)
     for name, factory in ADAPTERS.items():
         reg.register_adapter(name, factory)
+    pins = load_pins(pins_path)
     for cfg in CATALOG:
+        pin = pins.get(cfg.key)
+        if pin:
+            cfg = replace(
+                cfg,
+                revision=pin["revision"],
+                tokenizer_revision=pin.get("tokenizer_revision") or pin["revision"],
+            )
         reg.add(cfg)
     return reg

@@ -11,6 +11,19 @@ dependencies = [
     "regex>=2024.5.15",
 ]
 
+[project.optional-dependencies]
+# Install on the target machine only (see docs/MODEL_SETUP_M4.md).
+models = [
+    "torch>=2.4",
+    "transformers>=4.46",
+    "sentence-transformers>=3.2",
+    "huggingface_hub>=0.26",
+]
+learn = [
+    "scikit-learn>=1.5",
+    "joblib>=1.4",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

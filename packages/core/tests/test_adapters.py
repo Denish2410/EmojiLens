@@ -80,3 +80,19 @@ def test_tesseract_missing_file_is_structured_error() -> None:
     r = default_registry().run("tesseract-ocr", Capability.OCR, "/nonexistent.png")
     assert r.error is not None
     assert r.error["code"] == "inference_failed"
+
+
+def test_pins_file_sets_exact_revisions(tmp_path: Path) -> None:
+    import json
+
+    pins = tmp_path / "pins.json"
+    pins.write_text(json.dumps({"pins": {"embed-multilingual-minilm": {"revision": "a" * 40}}}))
+    reg = default_registry(pins_path=pins)
+    cfg = reg.config("embed-multilingual-minilm")
+    assert cfg.revision == "a" * 40
+    assert cfg.tokenizer_revision == "a" * 40
+    # Pinned but absent from the cache (or deps missing) is still not available.
+    assert reg.availability(cfg.key).status in (
+        AvailabilityStatus.DEPENDENCY_MISSING,
+        AvailabilityStatus.NOT_DOWNLOADED,
+    )

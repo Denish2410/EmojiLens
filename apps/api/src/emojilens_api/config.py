@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     device: str = Field(default="auto", pattern="^(auto|cpu|mps|cuda)$")
     max_loaded_models: int = Field(default=2, ge=1, le=8)
     run_worker: bool = True
+    # Exact model revisions recorded by scripts/setup_models.py.
+    model_pins_path: str = "var/model_pins.json"
     # Registers labelled test-double adapters. For automated tests only.
     enable_test_doubles: bool = False
 
