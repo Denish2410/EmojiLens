@@ -13,6 +13,9 @@ All notable changes are documented here. Format based on Keep a Changelog.
 - Week 3: language-variety identification with uncertainty and CMI, CLDR 49 emoji meanings,
   M1 dataset storage, strict JSONL import, group-aware frozen splits, leakage validation, a synthetic
   benign-control fixture, Dataset Explorer and Multilingual Lab pages.
+- Week 4: transformation engine (identity and six families, seeded and versioned, with provenance,
+  piece maps, validation and composable chains), M2 variants, transform and variant-generation
+  endpoints, Transformation Laboratory, transformation taxonomy.
 ### Fixed
 - Raw invisible characters in test fixtures and the Inspector sample are now written as escapes.
 - Vitest no longer collects Playwright specs.

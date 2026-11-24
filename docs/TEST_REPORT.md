@@ -1,5 +1,21 @@
 # Test Report
 
+## 2026-11-24: Week 4 transformation engine
+
+| Suite | Result |
+|---|---|
+| Ruff, mypy strict (56 files), source hygiene | pass |
+| Pytest + Hypothesis | **192 passed** (incl. property tests: determinism and tiling for every transform × variety, and arbitrary chains up to 4 steps) |
+| Vitest | **23 passed** |
+| Production build | pass |
+| Playwright E2E (real API) | **14 passed** (7 specs × desktop/mobile) |
+
+Detection cross-checks (engine-level, deterministic): zero-width splits → `zero_width.inside_word`;
+tag and variation-selector payloads decoded back to the surrogate; bidi reorder →
+`bidi.control_without_rtl`; homoglyph → mixed or whole-script findings; bold styling → `compat.styled_letters`.
+These are unit checks of detector coverage on constructed inputs, not research results.
+
+
 ## 2026-11-24: Week 3 multilingual and datasets
 
 | Suite | Result |

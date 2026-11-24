@@ -45,10 +45,13 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [ ] Multilingual *semantic* comparison (needs the embedding adapter, Week 6)
 
 ## Week 4 — Transformation Engine
-- [ ] Six families (Unicode smuggling, emoji substitution, emoji cipher, homoglyph, text obfuscation, code-mixing) plus identity
-- [ ] Versioned, seeded, provenance-tracked transformation chains with offset maps
-- [ ] M2 migration: variants and provenance
-- [ ] Transformation Laboratory page; reproducibility tests
+- [x] Six families (Unicode smuggling, emoji substitution, emoji cipher, homoglyph, text obfuscation, code-mixing) plus identity, each with id, version, description, varieties, validated parameters, seed, provenance, offset map and validation
+- [x] Reproducible chains with composed offset maps and a canonical chain hash (property-tested)
+- [x] M2 migration: variants with recipe and chain hashes, piece maps, per-step results and inherited splits
+- [x] Variant generation only for frozen versions; leakage checks cover variants
+- [x] Transformation Laboratory (chain builder, provenance, reproducibility, offset map, variant generation)
+- [x] Taxonomy documented (`research/TRANSFORMATION_TAXONOMY.md`)
+  - *AC:* identity leaves input unchanged; every smuggling technique is detected by the Week 2 evidence rules (tested)
 
 ## Week 5 — Human Annotation
 - [ ] M3 migration: annotators and annotations; versioned guidelines

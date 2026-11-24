@@ -1,7 +1,7 @@
 # Project Status
 
-**Current week:** 4 (Transformation engine)
-**Current milestone:** Weeks 2–3 are complete. Outstanding: the Week 1 literature review and multilingual semantic comparison (needs Week 6 embeddings).
+**Current week:** 5 (Human annotation)
+**Current milestone:** Weeks 2–4 are complete. Outstanding: the Week 1 literature review and multilingual semantic comparison (needs Week 6 embeddings).
 **Last updated:** 2026-11-24
 
 ## Completed (verified, see docs/TEST_REPORT.md)
@@ -16,6 +16,7 @@
 
 - Week 2: evidence classifier, legitimate-structure recognition, homoglyph detection, decoders, derived views, Inspector evidence and views UI, source hygiene guard
 - Week 3: variety identification with uncertainty, CLDR 49 emoji meanings, M1 datasets, JSONL import, frozen group-aware splits, leakage validation, benign-control fixture, Dataset Explorer, Multilingual Lab
+- Week 4: identity plus six transformation families, composable chains with offset maps, M2 variants, variant generation on frozen versions, Transformation Lab, taxonomy
 
 ## Pending (Week 1)
 - [ ] Literature review with individually verified references
@@ -30,9 +31,10 @@
 See `git log -1 origin/main`; CI must be green before a batch counts as verified.
 
 ## Next exact task
-Week 4: `emojilens_core/transforms/`. Start with the transformation interface (id, version, seed, config,
-provenance, offset map, validation) and the identity transform, then the six families, followed by the M2
-variants migration.
+Week 5: M3 migration (annotators, guideline versions, annotation tasks, annotations, adjudications),
+then the core agreement statistics (Cohen's kappa, Krippendorff's alpha) with tests against
+hand-computed values, then the blinded queue API and the Annotation Studio page. Real annotation still
+needs recruited annotators (external dependency).
 
 ## Estimated remaining work
-About 7 of 10 roadmap weeks. Weeks 1–3 met except the literature review and Week 6–dependent semantic comparison.
+About 6 of 10 roadmap weeks. Weeks 1–4 met except the literature review and Week 6–dependent semantic comparison.

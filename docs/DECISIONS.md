@@ -91,3 +91,20 @@ source inherit its split, and adding groups never moves existing ones.
 streamed with a byte limit, instead of multipart.
 **Rationale:** no file is ever written to a path derived from user input (no path traversal), and no extra
 dependency is needed.
+
+## D-016 Piece maps as the single provenance format (2026-11-24)
+**Decision:** transformations return `(orig_start, orig_end, text)` pieces that tile their input,
+the same structure used by derived views (D-011). Chains compose piece maps by grouping at shared
+mid-text boundaries.
+**Rationale:** one offset-mapping primitive, so every multi-step output maps back to original offsets,
+and property tests can check tiling generically.
+
+## D-017 Recipe hash versus chain hash (2026-11-24)
+**Decision:** a variant stores a *recipe hash* (seed, step ids, versions, resolved params) and a *chain hash*
+(which also includes the source's variety). Idempotent generation and filtering use the recipe hash.
+**Rationale:** one recipe applied to a multilingual dataset gives per-variety chains that still
+belong to the same experimental condition.
+
+## D-018 Harmless surrogate payloads only (2026-11-24)
+**Decision:** payload parameters are free strings (at most 200 code points, well-formed). Defaults and
+all fixtures use `SURROGATE-TOKEN`. The engine never ships harmful payloads, and nothing decoded is executed.
