@@ -126,6 +126,15 @@ wheels = [
 ]
 
 [[package]]
+name = "confusable-homoglyphs"
+version = "3.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0d/10/1358fca1ee2d97d4f2877df9ffbe6d124da666fef3b2f75e771a4c1afee6/confusable_homoglyphs-3.3.1.tar.gz", hash = "sha256:b995001c9b2e1b4cea0cf5f3840a7c79188a8cbbad053d693572bd8c1c1ec460", size = 325480, upload-time = "2024-01-30T10:10:27.47Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/c5/6e/c0fcbb7d341a46cf4241a6aa9e6a737734f0657521fc1bcd074953fe4eea/confusable_homoglyphs-3.3.1-py2.py3-none-any.whl", hash = "sha256:84c92cb79dc7f55aa290d0762b2349abd8dee4c16fbe6f99eac978d394e2e6a1", size = 144755, upload-time = "2024-01-30T10:10:24.857Z" },
+]
+
+[[package]]
 name = "coverage"
 version = "7.17.5"
 source = { registry = "https://pypi.org/simple" }
@@ -165,6 +174,15 @@ wheels = [
 ]
 
 [[package]]
+name = "emoji"
+version = "2.16.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/34/01/a25a9c13e2f8945d06b219e08e88a5dd8a504ad1a79f872f25d6814f498c/emoji-2.16.0.tar.gz", hash = "sha256:ff9e9b1c48389ef78ed1787e7693c555e84e6bb9bac16be1fd65e1616dbf80c8", size = 617905, upload-time = "2026-09-16T19:47:57.051Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/8a/75e3177f374877b19dd3112820b071836ad1100f9f58424630b4783519bc/emoji-2.16.0-py3-none-any.whl", hash = "sha256:c4230d80640def9071599ff56b1b5950fe13a2a94c0da98c5deab12431b24330", size = 610912, upload-time = "2026-09-16T19:47:55.507Z" },
+]
+
+[[package]]
 name = "emojilens-api"
 version = "0.1.0"
 source = { editable = "apps/api" }
@@ -194,11 +212,17 @@ name = "emojilens-core"
 version = "0.1.0"
 source = { editable = "packages/core" }
 dependencies = [
+    { name = "confusable-homoglyphs" },
+    { name = "emoji" },
     { name = "regex" },
 ]
 
 [package.metadata]
-requires-dist = [{ name = "regex", specifier = ">=2024.5.15" }]
+requires-dist = [
+    { name = "confusable-homoglyphs", specifier = ">=3.3.1" },
+    { name = "emoji", specifier = ">=2.12" },
+    { name = "regex", specifier = ">=2024.5.15" },
+]
 
 [[package]]
 name = "emojilens-workspace"
