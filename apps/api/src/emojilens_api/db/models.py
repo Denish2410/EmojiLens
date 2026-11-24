@@ -298,3 +298,29 @@ class MetricResult(Base):
     resamples: Mapped[int] = mapped_column(Integer)
     seed: Mapped[int] = mapped_column(Integer)
     computed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# ------------------------------------------------------------------ M6: render artifacts
+
+
+class RenderArtifact(Base):
+    """A rendered screenshot stored on disk under the artifacts directory, referenced by hash."""
+
+    __tablename__ = "render_artifacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "text_sha256", "config_hash", "renderer", name="uq_render_artifacts_input"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    text_sha256: Mapped[str] = mapped_column(String(64))
+    config_hash: Mapped[str] = mapped_column(String(64))
+    renderer: Mapped[str] = mapped_column(String(16))
+    renderer_version: Mapped[str] = mapped_column(String(16))
+    rel_path: Mapped[str] = mapped_column(String(256))
+    image_sha256: Mapped[str] = mapped_column(String(64))
+    width: Mapped[int] = mapped_column(Integer)
+    height: Mapped[int] = mapped_column(Integer)
+    provenance: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

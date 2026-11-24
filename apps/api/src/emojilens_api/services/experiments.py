@@ -12,7 +12,8 @@ import json
 import logging
 import threading
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from pathlib import Path
 from typing import Any
 
 from sqlalchemy import select
@@ -20,13 +21,14 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from emojilens_api.db import utcnow
 from emojilens_api.db.models import Experiment, ModelOutput, ModelVersion, Source, Variant
+from emojilens_api.services.multimodal import ocr_reading, reading_extra
 from emojilens_core.datasets import text_sha256
 from emojilens_core.models import Capability, ModelRegistry, SafetyJudge, response_behavior
 from emojilens_core.models.safety import classifier_safety
 
 log = logging.getLogger("emojilens.experiments")
 
-SUPPORTED_MODALITIES = ("text",)
+SUPPORTED_MODALITIES = ("text", "ocr")
 TERMINAL = ("completed", "failed", "cancelled", "interrupted")
 
 
@@ -103,7 +105,12 @@ def count_units(session: Session, registry: ModelRegistry, config: dict[str, Any
     return sum(1 for _ in units(session, registry, config))
 
 
-def run_experiment(factory: sessionmaker[Session], registry: ModelRegistry, exp_id: int) -> str:
+def run_experiment(
+    factory: sessionmaker[Session],
+    registry: ModelRegistry,
+    exp_id: int,
+    artifacts_root: Path | None = None,
+) -> str:
     """Execute one experiment to a terminal state and return that state."""
     with factory() as session:
         exp = session.get(Experiment, exp_id)
@@ -135,7 +142,26 @@ def run_experiment(factory: sessionmaker[Session], registry: ModelRegistry, exp_
                 )
                 if exists:
                     continue
-                result = registry.run(unit.model_key, unit.capability, unit.text)
+                reading: dict[str, Any] | None = None
+                model_input = unit.text
+                if unit.modality == "ocr":
+                    if artifacts_root is None:
+                        raise RuntimeError("ocr modality requires an artifacts directory")
+                    art, ocr = ocr_reading(session, artifacts_root, registry, unit.text)
+                    reading = reading_extra(art, ocr)
+                    model_input = str(ocr.normalized.get("text") or "")
+                result = registry.run(unit.model_key, unit.capability, model_input)
+                if reading is not None:
+                    result = replace(result, normalized={**result.normalized, "_reading": reading})
+                    if reading["ocr_error"]:
+                        result = replace(
+                            result,
+                            error={
+                                "code": "ocr_failed",
+                                "message": "OCR reading failed",
+                                "details": reading["ocr_error"],
+                            },
+                        )
                 behavior = safety = None
                 if unit.capability is Capability.GENERATE:
                     behavior = response_behavior(result)[0].value
@@ -153,7 +179,7 @@ def run_experiment(factory: sessionmaker[Session], registry: ModelRegistry, exp_
                         variant_key=vkey,
                         capability=unit.capability.value,
                         modality=unit.modality,
-                        input_sha256=text_sha256(unit.text),
+                        input_sha256=text_sha256(model_input),
                         raw=result.raw_output,
                         normalized=result.normalized,
                         tokenization=None
@@ -209,9 +235,14 @@ class ExperimentWorker:
     """Single background thread that executes queued experiments in order."""
 
     def __init__(
-        self, factory: sessionmaker[Session], registry: ModelRegistry, poll_s: float = 0.5
+        self,
+        factory: sessionmaker[Session],
+        registry: ModelRegistry,
+        poll_s: float = 0.5,
+        artifacts_root: Path | None = None,
     ) -> None:
         self.factory = factory
+        self.artifacts_root = artifacts_root
         self.registry = registry
         self.poll_s = poll_s
         self._stop = threading.Event()
@@ -227,7 +258,7 @@ class ExperimentWorker:
             )
         if exp_id is None:
             return None
-        run_experiment(self.factory, self.registry, exp_id)
+        run_experiment(self.factory, self.registry, exp_id, self.artifacts_root)
         return exp_id
 
     def _loop(self) -> None:

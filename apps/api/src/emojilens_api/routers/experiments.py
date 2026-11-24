@@ -29,7 +29,7 @@ class ExperimentIn(BaseModel):
     recipe_hashes: list[str] = Field(default_factory=list, max_length=20)
     model_keys: list[str] = Field(min_length=1, max_length=10)
     capabilities: list[Literal["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE"]] = Field(min_length=1)
-    modalities: list[Literal["text"]] = Field(default=["text"], min_length=1)
+    modalities: list[Literal["text", "ocr"]] = Field(default=["text"], min_length=1)
     seed: int = Field(default=0, ge=0)
     label_map: dict[str, Literal["safe", "unsafe"]] | None = None
 

@@ -23,18 +23,22 @@ def migrated_db_url(db_url: str) -> str:
 
 
 @pytest.fixture
-def client(migrated_db_url: str) -> Iterator[TestClient]:
+def client(migrated_db_url: str, tmp_path: Path) -> Iterator[TestClient]:
     settings = Settings(
-        database_url=migrated_db_url, max_input_codepoints=100, max_upload_bytes=1_000_000
+        artifacts_dir=str(tmp_path / "artifacts"),
+        database_url=migrated_db_url,
+        max_input_codepoints=100,
+        max_upload_bytes=1_000_000,
     )
     with TestClient(create_app(settings)) as c:
         yield c
 
 
 @pytest.fixture
-def td_client(migrated_db_url: str) -> Iterator[TestClient]:
+def td_client(migrated_db_url: str, tmp_path: Path) -> Iterator[TestClient]:
     """Client with labelled TEST-DOUBLE adapters registered and the worker driven manually."""
     settings = Settings(
+        artifacts_dir=str(tmp_path / "artifacts"),
         database_url=migrated_db_url,
         max_upload_bytes=1_000_000,
         run_worker=False,

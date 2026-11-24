@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ from emojilens_api.routers import (
     experiments,
     model_registry,
     multilingual,
+    multimodal,
     system,
     transforms,
     unicode,
@@ -70,7 +72,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.sessionmaker = make_sessionmaker(app.state.engine)
     choice = select_device(settings.device)
     app.state.registry = default_registry(
-        device=choice.device, max_loaded=settings.max_loaded_models
+        device=choice.device,
+        max_loaded=settings.max_loaded_models,
+        pins_path=Path(settings.model_pins_path),
     )
     app.state.device_reason = choice.reason
     if settings.enable_test_doubles:
@@ -79,7 +83,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
         app.state.registry.register_adapter("test_double", TestDoubleAdapter)
         app.state.registry.add(make_test_double_config("test-double-all"))
-    app.state.worker = ExperimentWorker(app.state.sessionmaker, app.state.registry)
+    app.state.artifacts_root = Path(settings.artifacts_dir).resolve()
+    app.state.worker = ExperimentWorker(
+        app.state.sessionmaker, app.state.registry, artifacts_root=app.state.artifacts_root
+    )
 
     app.add_middleware(
         CORSMiddleware,
@@ -97,4 +104,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(model_registry.router, prefix=API_PREFIX)
     app.include_router(experiments.router, prefix=API_PREFIX)
     app.include_router(consistency.router, prefix=API_PREFIX)
+    app.include_router(multimodal.router, prefix=API_PREFIX)
     return app

@@ -168,3 +168,19 @@ def test_experiment_validation(td_client: TestClient) -> None:
     assert (
         td_client.get("/api/v1/experiments/999").json()["error"]["code"] == "experiment_not_found"
     )
+
+
+def test_api_registry_applies_model_pins(migrated_db_url: str, tmp_path: object) -> None:
+    import pathlib
+
+    from emojilens_api.config import Settings
+    from emojilens_api.main import create_app
+
+    pins = pathlib.Path(str(tmp_path)) / "pins.json"
+    pins.write_text(json.dumps({"pins": {"embed-multilingual-minilm": {"revision": "b" * 40}}}))
+    app = create_app(
+        Settings(database_url=migrated_db_url, run_worker=False, model_pins_path=str(pins))
+    )
+    with TestClient(app) as c:
+        models = {m["key"]: m for m in c.get("/api/v1/models").json()["models"]}
+    assert models["embed-multilingual-minilm"]["revision"] == "b" * 40
