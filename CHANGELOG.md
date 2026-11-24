@@ -16,6 +16,8 @@ All notable changes are documented here. Format based on Keep a Changelog.
 - Week 4: transformation engine (identity and six families, seeded and versioned, with provenance,
   piece maps, validation and composable chains), M2 variants, transform and variant-generation
   endpoints, Transformation Laboratory, transformation taxonomy.
+- Week 5: human annotation workflow (M3, blinded queues, independent submissions, adjudication),
+  Cohen's kappa and Krippendorff's alpha, Annotation Studio, draft guidelines.
 ### Fixed
 - Raw invisible characters in test fixtures and the Inspector sample are now written as escapes.
 - Vitest no longer collects Playwright specs.

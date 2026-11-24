@@ -54,10 +54,13 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
   - *AC:* identity leaves input unchanged; every smuggling technique is detected by the Week 2 evidence rules (tested)
 
 ## Week 5 — Human Annotation
-- [ ] M3 migration: annotators and annotations; versioned guidelines
-- [ ] Blinded queues, adjudication, Cohen's kappa and Krippendorff's alpha
-- [ ] Annotation Studio page
-- [ ] Real annotation of about 100–150 pairs, with at least two annotators on a stratified subset (**external dependency: annotators**)
+- [x] M3 migration: annotators (pseudonym + proficiency), immutable guideline versions, tasks, annotations, adjudications
+- [x] Seeded, language-stratified task sampling; blinded per-annotator queues; independent submissions
+- [x] Cohen's kappa (pairwise) and nominal Krippendorff's alpha, with "unsure" treated as missing and undefined values reported as undefined
+  - *AC:* hand-computed values reproduced in tests
+- [x] Disagreement inspection and adjudication that keeps raw labels
+- [x] Annotation Studio page (unit + E2E); draft guidelines (`research/ANNOTATION_GUIDELINES.md`)
+- [ ] **Real human annotation of ~100–150 pairs, at least two annotators on a stratified subset: blocked on recruitment (external dependency)**
 
 ## Week 6 — Models and Experiment Runner
 - [ ] Adapter interface (TOKENIZE, CLASSIFY, EMBED, GENERATE, VISION_INPUT, OCR)

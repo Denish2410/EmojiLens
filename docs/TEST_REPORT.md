@@ -1,5 +1,20 @@
 # Test Report
 
+## 2026-11-24: Week 5 human annotation
+
+| Suite | Result |
+|---|---|
+| Ruff, mypy strict (61 files), source hygiene | pass |
+| Pytest + Hypothesis | **204 passed** |
+| Vitest | **25 passed** |
+| Production build | pass |
+| Playwright E2E (real API) | **16 passed** (8 specs × desktop/mobile) |
+
+**CI history note:** GitHub Actions run #5 (commit e4f9908, the Week 3 batch) **failed** in the backend
+ruff-format step because `routers/datasets.py` was committed unformatted. Run #6 (fbe0dfe) passed
+backend, frontend and E2E. The cause and fix are recorded in D-020.
+
+
 ## 2026-11-24: Week 4 transformation engine
 
 | Suite | Result |

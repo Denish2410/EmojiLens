@@ -108,3 +108,16 @@ belong to the same experimental condition.
 ## D-018 Harmless surrogate payloads only (2026-11-24)
 **Decision:** payload parameters are free strings (at most 200 code points, well-formed). Defaults and
 all fixtures use `SURROGATE-TOKEN`. The engine never ships harmful payloads, and nothing decoded is executed.
+
+## D-019 Blinded queues and treatment of "unsure" (2026-11-24)
+**Decision:** the queue returns only the source, the variant, the language and the guideline version, in
+a per-annotator hash order. Agreement statistics treat `unsure` as missing, and undefined statistics are
+`null`, never 0 or 1.
+**Rationale:** this avoids anchoring on transformation families or on other annotators' labels, and avoids
+reporting agreement that does not exist.
+
+## D-020 Gates verify exactly the committed content (2026-11-24)
+**Decision:** the local commit helper stashes all unstaged and untracked changes before running the
+quality gates, so each commit is checked as committed.
+**Context:** CI run #5 failed on a formatting difference that existed only in the committed file. The
+working tree had been formatted, but that change was never staged.
