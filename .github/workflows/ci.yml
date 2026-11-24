@@ -20,6 +20,8 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
+      - name: Install Tesseract OCR (eng, hin, guj)
+        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr tesseract-ocr-hin tesseract-ocr-guj fonts-dejavu-core
       - name: Install
         run: uv sync --all-packages --frozen --python 3.11
       - name: Ruff

@@ -55,4 +55,5 @@ testpaths = ["packages/core/tests", "apps/api/tests", "tests"]
 addopts = "-ra --strict-markers"
 markers = [
     "real_model: requires downloaded model artifacts (excluded from default CI)",
+    "real_ocr: runs real Tesseract inference (skipped when tesseract is absent)",
 ]
