@@ -29,3 +29,17 @@ def client(migrated_db_url: str) -> Iterator[TestClient]:
     )
     with TestClient(create_app(settings)) as c:
         yield c
+
+
+@pytest.fixture
+def td_client(migrated_db_url: str) -> Iterator[TestClient]:
+    """Client with labelled TEST-DOUBLE adapters registered and the worker driven manually."""
+    settings = Settings(
+        database_url=migrated_db_url,
+        max_upload_bytes=1_000_000,
+        run_worker=False,
+        device="cpu",
+        enable_test_doubles=True,
+    )
+    with TestClient(create_app(settings)) as c:
+        yield c

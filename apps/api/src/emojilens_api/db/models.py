@@ -177,3 +177,97 @@ class Adjudication(Base):
     adjudicator: Mapped[str] = mapped_column(String(64))
     rationale: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# ------------------------------------------------------------------ M4: models, experiments
+
+EXPERIMENT_STATES = (
+    "queued",
+    "running",
+    "cancelling",
+    "cancelled",
+    "completed",
+    "failed",
+    "interrupted",
+)
+
+
+class ModelVersion(Base):
+    """One concrete model build used for inference (fingerprint over all identifying fields)."""
+
+    __tablename__ = "model_versions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    fingerprint: Mapped[str] = mapped_column(String(64), unique=True)
+    key: Mapped[str] = mapped_column(String(64))
+    model_id: Mapped[str] = mapped_column(String(200))
+    revision: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    tokenizer_revision: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    adapter: Mapped[str] = mapped_column(String(32))
+    adapter_version: Mapped[str] = mapped_column(String(16))
+    device: Mapped[str] = mapped_column(String(16))
+    dtype: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    library_versions: Mapped[dict[str, str]] = mapped_column(JSON)
+    test_double: Mapped[bool] = mapped_column(Boolean)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Experiment(Base):
+    __tablename__ = "experiments"
+    __table_args__ = (
+        CheckConstraint(f"status IN {EXPERIMENT_STATES!r}", name="ck_experiments_status"),
+        Index("ix_experiments_status", "status"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    name: Mapped[str] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(16), default="queued")
+    config: Mapped[dict[str, Any]] = mapped_column(JSON)
+    config_hash: Mapped[str] = mapped_column(String(64))
+    total_items: Mapped[int] = mapped_column(Integer, default=0)
+    done_items: Mapped[int] = mapped_column(Integer, default=0)
+    failed_items: Mapped[int] = mapped_column(Integer, default=0)
+    cancel_requested: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class ModelOutput(Base):
+    __tablename__ = "model_outputs"
+    __table_args__ = (
+        UniqueConstraint(
+            "experiment_id",
+            "model_version_id",
+            "source_id",
+            "variant_key",
+            "capability",
+            "modality",
+            name="uq_model_outputs_item",
+        ),
+        Index("ix_model_outputs_experiment", "experiment_id"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    experiment_id: Mapped[int] = mapped_column(ForeignKey("experiments.id", ondelete="CASCADE"))
+    model_version_id: Mapped[int] = mapped_column(
+        ForeignKey("model_versions.id", ondelete="RESTRICT")
+    )
+    source_id: Mapped[int] = mapped_column(ForeignKey("sources.id", ondelete="CASCADE"))
+    variant_id: Mapped[int | None] = mapped_column(
+        ForeignKey("variants.id", ondelete="CASCADE"), nullable=True
+    )
+    variant_key: Mapped[int] = mapped_column(Integer)  # variant id, or 0 for the source itself
+    capability: Mapped[str] = mapped_column(String(16))
+    modality: Mapped[str] = mapped_column(String(8))
+    input_sha256: Mapped[str] = mapped_column(String(64))
+    raw: Mapped[Any] = mapped_column(JSON, nullable=True)
+    normalized: Mapped[dict[str, Any]] = mapped_column(JSON)
+    tokenization: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    params: Mapped[dict[str, Any]] = mapped_column(JSON)
+    latency_ms: Mapped[float] = mapped_column(Float)
+    error: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
+    behavior: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    safety: Mapped[str | None] = mapped_column(String(16), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

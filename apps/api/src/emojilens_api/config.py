@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     # Upper bound on a dataset upload body, in bytes.
     max_upload_bytes: int = Field(default=10 * 1024 * 1024, ge=1024)
     log_level: str = "INFO"
+    device: str = Field(default="auto", pattern="^(auto|cpu|mps|cuda)$")
+    max_loaded_models: int = Field(default=2, ge=1, le=8)
+    run_worker: bool = True
+    # Registers labelled test-double adapters. For automated tests only.
+    enable_test_doubles: bool = False
 
 
 @lru_cache
