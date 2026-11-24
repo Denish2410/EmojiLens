@@ -16,6 +16,7 @@ from emojilens_api.db import make_engine, make_sessionmaker
 from emojilens_api.errors import install_error_handlers
 from emojilens_api.routers import (
     annotation,
+    consistency,
     datasets,
     experiments,
     model_registry,
@@ -95,4 +96,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(annotation.router, prefix=API_PREFIX)
     app.include_router(model_registry.router, prefix=API_PREFIX)
     app.include_router(experiments.router, prefix=API_PREFIX)
+    app.include_router(consistency.router, prefix=API_PREFIX)
     return app

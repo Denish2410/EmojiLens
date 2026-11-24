@@ -271,3 +271,30 @@ class ModelOutput(Base):
     behavior: Mapped[str | None] = mapped_column(String(16), nullable=True)
     safety: Mapped[str | None] = mapped_column(String(16), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# ------------------------------------------------------------------ M5: consistency metrics
+
+
+class MetricResult(Base):
+    """Stored CRSC results; each row traces to an experiment's stored model outputs."""
+
+    __tablename__ = "metric_results"
+    __table_args__ = (Index("ix_metric_results_experiment", "experiment_id", "crsc_version"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    experiment_id: Mapped[int] = mapped_column(ForeignKey("experiments.id", ondelete="CASCADE"))
+    crsc_version: Mapped[str] = mapped_column(String(16))
+    metric: Mapped[str] = mapped_column(String(16))
+    model: Mapped[str] = mapped_column(String(64))
+    stratum: Mapped[str] = mapped_column(String(32))
+    stratum_value: Mapped[str] = mapped_column(String(128))
+    value: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ci_low: Mapped[float | None] = mapped_column(Float, nullable=True)
+    ci_high: Mapped[float | None] = mapped_column(Float, nullable=True)
+    n: Mapped[int] = mapped_column(Integer)
+    n_groups: Mapped[int] = mapped_column(Integer)
+    details: Mapped[dict[str, Any]] = mapped_column(JSON)
+    resamples: Mapped[int] = mapped_column(Integer)
+    seed: Mapped[int] = mapped_column(Integer)
+    computed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
