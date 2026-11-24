@@ -1,44 +1,61 @@
 # Project Status
 
-**Current week:** 6 (AI models and experiment runner)
-**Current milestone:** Weeks 2–5 are complete as infrastructure. Real human annotation awaits annotators. Outstanding: the Week 1 literature review and multilingual semantic comparison (needs Week 6 embeddings).
-**Last updated:** 2026-11-24
+**Last updated:** 2026-11-25
+**Current phase:** Weeks 6–9 engineering is implemented. Real-model inference, human annotation and
+final experiments (Week 10) are blocked on external dependencies.
 
-## Completed (verified, see docs/TEST_REPORT.md)
-- Monorepo and toolchain (uv workspace, pnpm workspace, lockfiles)
-- Unicode engine core: validation, original-input hash, graphemes, code point inspection, 3-space offsets
-- API v1: health, readiness, Unicode analysis, structured errors, size limit, OpenAPI
-- DB foundation M0 (SQLite WAL, Alembic, migration tests)
-- Web shell, Overview (live status), Unicode Inspector shell
-- Playwright E2E against the real API
-- GitHub Actions CI is green (run #2). Run #1 caught Vitest collecting the Playwright spec, now fixed.
-- Research drafts: proposal, threat model; literature review skeleton
+Status legend: **Implemented** (code exists) · **Fixture-tested** (automated tests with fixtures or
+labelled test doubles) · **Real-verified** (executed with real models or engines) · **Awaiting
+external** (needs something outside this workspace) · **Accepted** (all acceptance criteria verified).
+Fixture-only testing never counts as real-model validation.
 
-- Week 2: evidence classifier, legitimate-structure recognition, homoglyph detection, decoders, derived views, Inspector evidence and views UI, source hygiene guard
-- Week 3: variety identification with uncertainty, CLDR 49 emoji meanings, M1 datasets, JSONL import, frozen group-aware splits, leakage validation, benign-control fixture, Dataset Explorer, Multilingual Lab
-- Week 4: identity plus six transformation families, composable chains with offset maps, M2 variants, variant generation on frozen versions, Transformation Lab, taxonomy
-- Week 5: M3 annotation storage, blinded queues, agreement statistics, adjudication, Annotation Studio, draft guidelines
+| Area | Implemented | Fixture-tested | Real-verified | Awaiting external | Accepted |
+|---|---|---|---|---|---|
+| W1 foundation, CI | ✅ | ✅ | n/a | literature review (verified refs) | ⬜ |
+| W2 Unicode forensics | ✅ | ✅ | n/a | — | ✅ |
+| W3 multilingual and datasets | ✅ | ✅ | n/a | semantic comparison needs embeddings | ⬜ |
+| W4 transformations | ✅ | ✅ | n/a | native-speaker lexicon review | ✅ (engineering) |
+| W5 annotation infrastructure | ✅ | ✅ | n/a | **annotators** (no human labels exist) | ⬜ |
+| W6 adapter framework, registry, device, SafetyJudge | ✅ | ✅ (test doubles) | — | — | ✅ (framework) |
+| W6 HF classifier / embedding / generative / VLM adapters | ✅ | contract only | ❌ never run | **model downloads** (huggingface.co blocked) | ⬜ |
+| W6 Tesseract OCR adapter | ✅ | ✅ | ✅ eng + hin (guj pack missing locally) | guj traineddata (installed in CI) | ⬜ (guj) |
+| W6 M4, experiment jobs, cancel/interrupt/resume | ✅ | ✅ | ✅ with Tesseract in the `ocr` modality | — | ✅ |
+| W6 Model Arena, Experiment Studio | ✅ | ✅ unit + E2E | — | real models to compare | ⬜ |
+| W7 CRSC-sem / CRSC-safe (experimental), M5 | ✅ | ✅ math sanity | ❌ | real model outputs | ⬜ |
+| W7 CRSC Analytics | ✅ | ✅ | — | — | ⬜ |
+| W8 sandboxed renderer, OCR path, M6 | ✅ | ✅ | ✅ Chromium + Tesseract (en, hi) | — | ⬜ (VLM) |
+| W8 VLM path | ✅ adapter | contract only | ❌ | **model downloads** | ⬜ |
+| W8 Multimodal Laboratory | ✅ | ✅ unit + E2E | ✅ real render/OCR in E2E | — | ⬜ |
+| W9 EmojiGuard rules, view re-scoring, policy | ✅ | ✅ | n/a | — | ⬜ (needs real evaluation) |
+| W9 learned detector, baselines, ablations, M7 | ✅ | ✅ (synthetic fixture only) | n/a | real evaluation data | ⬜ |
+| W9 off-the-shelf classifier baseline | reported as unavailable | — | ❌ | **model downloads** | ⬜ |
+| W9 EmojiGuard Console, Evaluation Dashboard | ✅ | ✅ unit + E2E | — | — | ⬜ |
+| W10 final experiments, report, release | ⬜ | ⬜ | ⬜ | all of the above | ⬜ |
 
-## Pending (Week 1)
-- [ ] Literature review with individually verified references
+## Research results
+**None.** All numbers that have appeared anywhere came from synthetic fixtures or labelled test
+doubles and are flagged "not research-reportable" in the UI and API. No human annotations exist.
 
-## Blockers / external dependencies
-- **Network:** huggingface.co and unicode.org are blocked from the cloud dev workspace, so real model
-  inference (Weeks 6–9) needs those domains allowed (claude.ai Settings > Capabilities) or must run on the M4 Mac.
-- Human annotators (Weeks 5–8) are not yet recruited; see research/ANNOTATION_PLAN.md.
-- The Gujarati Tesseract pack (`guj`) is not installed in the dev container (needed in Week 8).
+## External blockers
+1. **Model weights:** huggingface.co is unreachable from the cloud workspace. Run `docs/MODEL_SETUP_M4.md`
+   on the M4 Mac, or allow huggingface.co in claude.ai Settings → Capabilities.
+2. **Human annotators:** see `research/ANNOTATION_PLAN.md`.
+3. **Gujarati OCR pack** (`guj`) is missing locally. CI installs it.
+4. **Literature review:** the references still need verification (no verified entries yet).
+5. **Evaluation dataset:** a real, licensed multilingual evaluation dataset has not been sourced. The only
+   data in the repository is the 28-record synthetic fixture.
 
-## Latest verified commit
-See `git log -1 origin/main`; CI must be green before a batch counts as verified.
+## Remaining engineering work
+- `real_model` integration tests that execute each HF adapter (to run on the M4).
+- A `vlm` experiment modality (adapter exists; worker wiring pending a runnable model).
+- An Overview dashboard refresh (model availability, experiment status, dataset statistics).
+- A Settings and System page (spec M).
+- Week 10: frozen research configurations, a report generated from stored results, a fresh-clone check and a release tag.
+
+## Latest verified checkpoint
+See `git log -1 origin/main`. GitHub Actions was green through run #11; later runs are checked at each push.
 
 ## Next exact task
-Week 6: `emojilens_core/models/`. Define the adapter interface (capabilities TOKENIZE/CLASSIFY/EMBED/
-GENERATE/VISION_INPUT/OCR, metadata, lazy loading) and the SafetyJudge (response behaviour separate
-from the safety judgment), with contract tests using clearly labelled fake adapters. **Real model
-inference is blocked in the cloud workspace** (huggingface.co is not reachable). Either allow
-huggingface.co in claude.ai Settings > Capabilities, or run model selection and downloads on the M4 Mac
-after a resource check. The Tesseract adapter (eng, hin) can be built here; `guj` traineddata is
-missing.
-
-## Estimated remaining work
-About 5 of 10 roadmap weeks. Weeks 1–5 met as infrastructure, except the literature review, Week 6–dependent semantic comparison and real human annotation (external).
+On the M4 Mac: run `scripts/setup_models.py` for the embedding, generative and classifier models, then
+run `uv run pytest -m "real_model or real_ocr"` and record the results in `docs/TEST_REPORT.md`. In parallel,
+add `real_model` integration tests that execute each HF adapter, so real-inference acceptance can be ticked.
