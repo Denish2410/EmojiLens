@@ -116,3 +116,105 @@ export interface Readiness {
 export interface ApiErrorBody {
   error: { code: string; message: string; details?: unknown };
 }
+
+// ---- Datasets (v1) ----
+export type DatasetKind = "evaluation" | "synthetic_fixture";
+
+export interface DatasetVersion {
+  number: number;
+  content_sha256: string;
+  record_count: number;
+  schema_version: number;
+  split_seed: number | null;
+  split_ratios: number[] | null;
+  split_method: string | null;
+  frozen_at: string | null;
+  created_at: string;
+}
+
+export interface Dataset {
+  slug: string;
+  name: string;
+  description: string;
+  kind: DatasetKind;
+  license: string;
+  created_at: string;
+  versions: DatasetVersion[];
+}
+
+export interface LeakageIssue {
+  kind: string;
+  ids: string[];
+  splits: string[];
+}
+
+export interface VersionDetail {
+  dataset: string;
+  version: DatasetVersion;
+  stats: Record<"language" | "split" | "safety_label" | "control", Record<string, number>>;
+  language_agreement: { agree: number; disagree: number; undetected: number };
+  leakage: LeakageIssue[];
+  leakage_checked: boolean;
+}
+
+export interface SourceRow {
+  external_id: string;
+  source_group: string;
+  text: string;
+  text_sha256: string;
+  language: string;
+  detected_language: string | null;
+  detected_confidence: number | null;
+  safety_label: string;
+  control: string | null;
+  origin: string;
+  license: string;
+  meta: Record<string, unknown>;
+  split: string | null;
+}
+
+export interface SourcePage {
+  total: number;
+  page: number;
+  page_size: number;
+  items: SourceRow[];
+}
+
+export interface ImportResult {
+  dataset: string;
+  version: DatasetVersion;
+  duplicates: { kind: string; ids: string[] }[];
+}
+
+// ---- Multilingual (v1) ----
+export interface MultilingualResult {
+  identification: {
+    label: string | null;
+    confidence: number;
+    uncertain: boolean;
+    reasons: string[];
+    scores: Record<string, number>;
+    code_mixed: boolean;
+    cmi: number;
+    switch_points: number;
+    method: string;
+  };
+  tokens: { text: string; cp_start: number; cp_end: number; tag: string; candidates: string[] }[];
+  scripts: Record<string, number>;
+  dominant_script: string | null;
+  emoji: {
+    emoji: string;
+    cp_start: number;
+    cp_end: number;
+    meanings: { variety: string; locale: string; name: string; keywords: string[]; fallback: boolean }[];
+  }[];
+  cldr_version: string;
+}
+
+export interface VarietyInfo {
+  code: string;
+  name: string;
+  script: string;
+  cldr_locale: string | null;
+  notes: string;
+}

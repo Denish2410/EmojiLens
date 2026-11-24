@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { LayoutDashboard, Menu, Moon, ScanSearch, Sun, X } from "lucide-react";
+import { Database, Languages, LayoutDashboard, Menu, Moon, ScanSearch, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 import { useTheme } from "../lib/theme";
@@ -9,6 +9,8 @@ import { Logo } from "./Logo";
 const NAV = [
   { to: "/", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/inspector", label: "Unicode Inspector", icon: ScanSearch, end: false },
+  { to: "/multilingual", label: "Multilingual Lab", icon: Languages, end: false },
+  { to: "/datasets", label: "Dataset Explorer", icon: Database, end: false },
 ] as const;
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {

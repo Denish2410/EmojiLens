@@ -4,6 +4,8 @@ import { Link, Route, Routes } from "react-router";
 import { AppShell } from "./components/AppShell";
 import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./lib/theme";
+import { DatasetExplorer } from "./pages/DatasetExplorer";
+import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
 import { UnicodeInspector } from "./pages/UnicodeInspector";
 
@@ -24,6 +26,9 @@ export function AppRoutes() {
       <Route element={<AppShell />}>
         <Route index element={<Overview />} />
         <Route path="inspector" element={<UnicodeInspector />} />
+        <Route path="multilingual" element={<MultilingualLab />} />
+        <Route path="datasets" element={<DatasetExplorer />} />
+        <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

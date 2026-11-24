@@ -1,4 +1,16 @@
-import type { ApiErrorBody, Health, Readiness, UnicodeAnalysis } from "./types";
+import type {
+  ApiErrorBody,
+  Dataset,
+  DatasetKind,
+  Health,
+  ImportResult,
+  MultilingualResult,
+  Readiness,
+  SourcePage,
+  UnicodeAnalysis,
+  VarietyInfo,
+  VersionDetail,
+} from "./types";
 
 export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ?? "/api/v1";
 
@@ -30,7 +42,7 @@ async function request<T>(path: string, init?: RequestInit, allow?: number[]): P
   try {
     res = await fetch(new URL(`${API_BASE}${path}`, window.location.origin), {
       ...init,
-      headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
+      headers: { "Content-Type": "application/json", ...((init?.headers as Record<string, string>) ?? {}) },
     });
   } catch {
     throw new ApiError(0, "network_error", "Could not reach the EmojiLens API.");
@@ -55,4 +67,29 @@ export const api = {
       // and rejected server-side with invalid_unicode.
       body: JSON.stringify({ text }),
     }),
+  multilingual: (text: string) =>
+    request<MultilingualResult>("/multilingual/analyze", { method: "POST", body: JSON.stringify({ text }) }),
+  varieties: () => request<VarietyInfo[]>("/multilingual/varieties"),
+  datasets: () => request<Dataset[]>("/datasets"),
+  dataset: (slug: string) => request<Dataset>(`/datasets/${encodeURIComponent(slug)}`),
+  createDataset: (body: { slug: string; name: string; description: string; kind: DatasetKind; license: string }) =>
+    request<Dataset>("/datasets", { method: "POST", body: JSON.stringify(body) }),
+  importVersion: (slug: string, file: Blob) =>
+    request<ImportResult>(`/datasets/${encodeURIComponent(slug)}/versions`, {
+      method: "POST",
+      body: file,
+      headers: { "Content-Type": "application/x-ndjson" },
+    }),
+  version: (slug: string, n: number) =>
+    request<VersionDetail>(`/datasets/${encodeURIComponent(slug)}/versions/${n}`),
+  freeze: (slug: string, n: number, seed: number) =>
+    request<VersionDetail>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/freeze`, {
+      method: "POST",
+      body: JSON.stringify({ seed }),
+    }),
+  sources: (slug: string, n: number, params: Record<string, string | number | undefined>) => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "") qs.set(k, String(v));
+    return request<SourcePage>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/sources?${qs}`);
+  },
 };
