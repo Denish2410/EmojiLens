@@ -324,3 +324,28 @@ class RenderArtifact(Base):
     height: Mapped[int] = mapped_column(Integer)
     provenance: Mapped[dict[str, Any]] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+# ------------------------------------------------------------------ M7: guard
+
+
+class DetectorArtifact(Base):
+    __tablename__ = "detector_artifacts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    version: Mapped[str] = mapped_column(String(64))
+    rel_path: Mapped[str] = mapped_column(String(256))
+    sha256: Mapped[str] = mapped_column(String(64))
+    feature_schema: Mapped[list[str]] = mapped_column(JSON)
+    training_config: Mapped[dict[str, Any]] = mapped_column(JSON)
+    evaluation: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class GuardEvaluation(Base):
+    __tablename__ = "guard_evaluations"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    config: Mapped[dict[str, Any]] = mapped_column(JSON)
+    results: Mapped[dict[str, Any]] = mapped_column(JSON)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
