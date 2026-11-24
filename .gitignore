@@ -28,7 +28,7 @@ var/
 artifacts/*
 !artifacts/README.md
 datasets/private/
-models/
+/models/
 *.safetensors
 *.bin
 *.pt

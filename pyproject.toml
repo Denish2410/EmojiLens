@@ -47,7 +47,7 @@ plugins = ["pydantic.mypy"]
 mypy_path = ["packages/core/src", "apps/api/src"]
 
 [[tool.mypy.overrides]]
-module = ["regex", "regex.*"]
+module = ["regex", "regex.*", "torch", "torch.*", "transformers", "transformers.*", "sentence_transformers", "sentence_transformers.*", "huggingface_hub", "huggingface_hub.*", "sklearn", "sklearn.*", "joblib"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
