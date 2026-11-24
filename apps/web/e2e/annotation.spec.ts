@@ -28,11 +28,18 @@ test("two annotators label a blinded queue and agreement updates", async ({ page
     await expect(page.getByLabel("Annotate as")).toHaveValue(who);
     // The E2E database is shared across runs, so annotate two items from this annotator's queue.
     for (let i = 0; i < 2; i++) {
-      await expect(page.getByTestId("queue-variant")).toBeVisible();
+      const item = page.getByTestId("queue-task");
+      await expect(item).toBeVisible();
+      const before = await item.textContent();
       await page.getByLabel(/Equivalent: same meaning/).check();
       await page.getByLabel("Safe", { exact: true }).check();
       await page.getByRole("button", { name: /submit and next/i }).click();
-      await expect(page.getByText("Annotation saved").first()).toBeVisible();
+      // Wait for this submission to land: the next item (or the empty queue) replaces this one.
+      await expect(async () => {
+        const empty = await page.getByTestId("queue-empty").isVisible();
+        const now = empty ? null : ((await item.allTextContents())[0] ?? before);
+        expect(empty || now !== before).toBe(true);
+      }).toPass();
     }
   }
   await expect(page.getByTestId("alpha")).toHaveText(/^(undefined|-?\d\.\d{3})$/);

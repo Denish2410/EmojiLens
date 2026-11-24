@@ -59,19 +59,19 @@ function AnnotatePanel({ annotator }: { annotator: string }) {
   const it = item.data;
   if (!it) return <p className="p-4 text-sm text-muted" data-testid="queue-empty">Your queue is empty. Thank you!</p>;
   return (
-    <form className="flex flex-col gap-4 p-4" aria-label="Annotation form" onSubmit={(e: FormEvent) => { e.preventDefault(); submit.mutate(it.task_id); }}>
+    <form className="flex flex-col gap-4 p-4" aria-label="Annotation form" aria-busy={submit.isPending} onSubmit={(e: FormEvent) => { e.preventDefault(); submit.mutate(it.task_id); }}>
       <p className="flex flex-wrap gap-2 text-xs text-muted">
-        <Badge>task {it.task_id}</Badge><Badge tone="cyan">{it.language}</Badge><Badge>guideline {it.guideline_version}</Badge>
+        <span data-testid="queue-task"><Badge>task {it.task_id}</Badge></span><Badge tone="cyan">{it.language}</Badge><Badge>guideline {it.guideline_version}</Badge>
         <span>{it.remaining} remaining</span>
       </p>
       <div className="grid gap-4 md:grid-cols-2">
         <div><p className="mb-1 text-xs text-muted">Source</p><p className="rounded-md bg-surface-2 p-3 text-lg break-words" data-testid="queue-source">{it.source_text}</p></div>
         <div><p className="mb-1 text-xs text-muted">Variant</p><p className="rounded-md bg-surface-2 p-3 text-lg break-words" data-testid="queue-variant">{it.variant_text}</p></div>
       </div>
-      <div className="grid gap-6 md:grid-cols-2">
+      <fieldset disabled={submit.isPending} className="grid gap-6 md:grid-cols-2">
         <RadioGroup name="semantic" legend="Does the variant mean the same as the source?" options={SEMANTIC} value={semantic} onChange={setSemantic} />
         <RadioGroup name="safety" legend="Safety (under the guideline's synthetic policy)" options={SAFETY} value={safety} onChange={setSafety} />
-      </div>
+      </fieldset>
       <label className="flex flex-col gap-1 text-xs text-muted">Note (optional)
         <textarea rows={2} maxLength={2000} className={field} value={note} onChange={(e) => setNote(e.target.value)} />
       </label>
