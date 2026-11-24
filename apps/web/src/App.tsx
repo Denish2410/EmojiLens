@@ -8,6 +8,8 @@ import { AnnotationStudio } from "./pages/AnnotationStudio";
 import { CRSCAnalytics } from "./pages/CRSCAnalytics";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
 import { ExperimentStudio } from "./pages/ExperimentStudio";
+import { EvaluationDashboard } from "./pages/EvaluationDashboard";
+import { GuardConsole } from "./pages/GuardConsole";
 import { ModelArena } from "./pages/ModelArena";
 import { MultimodalLab } from "./pages/MultimodalLab";
 import { MultilingualLab } from "./pages/MultilingualLab";
@@ -40,6 +42,8 @@ export function AppRoutes() {
         <Route path="experiments" element={<ExperimentStudio />} />
         <Route path="crsc" element={<CRSCAnalytics />} />
         <Route path="multimodal" element={<MultimodalLab />} />
+        <Route path="guard" element={<GuardConsole />} />
+        <Route path="evaluation" element={<EvaluationDashboard />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>

@@ -465,3 +465,40 @@ export interface MultimodalResult {
   ocr: Reading | null;
   vlm: Reading | null;
 }
+
+// ---- EmojiGuard (v1) ----
+export interface GuardContribution { source: string; name: string; weight: number; evidence_ids: string[]; detail: string }
+export interface GuardAssessment {
+  input_sha256: string;
+  guard_version: string;
+  ablation: string;
+  evidence: { id: string; rule: string; category: string; cp_start: number; cp_end: number; utf16_start: number; utf16_end: number; message: string }[];
+  indicators: Record<string, number>;
+  rule_score: number | null;
+  detector_score: number | null;
+  detector_version: string | null;
+  risk_score: number;
+  uncertainty: string;
+  contributions: GuardContribution[];
+  explanation: string[];
+  recommendation: string;
+  relevant_views: string[];
+  latency_ms: number;
+  notes: string[];
+}
+export interface MetricsRow {
+  n: number; tp: number; fp: number; tn: number; fn: number;
+  precision: number | null; recall: number | null; f1: number | null; fpr: number | null; fnr: number | null;
+  f1_ci: [number | null, number | null]; mean_latency_ms: number | null;
+  false_positives: string[]; false_negatives: string[];
+}
+export interface GuardEvaluationResult {
+  id: number;
+  config: Record<string, unknown>;
+  research_reportable: boolean;
+  results: {
+    systems: Record<string, { kind: "baseline" | "emojiguard"; overall: MetricsRow; strata: Record<string, Record<string, MetricsRow>> }>;
+    unavailable: Record<string, string>;
+    items: Record<string, { text: string; label: number; language: string; family: string }>;
+  };
+}

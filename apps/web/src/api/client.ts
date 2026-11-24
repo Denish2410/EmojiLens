@@ -1,4 +1,6 @@
 import type {
+  GuardAssessment,
+  GuardEvaluationResult,
   MultimodalResult,
   CRSCResult,
   ExperimentRow,
@@ -96,6 +98,15 @@ export const api = {
   recipes: (slug: string, n: number) =>
     request<RecipeRow[]>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/recipes`),
   experiments: () => request<ExperimentRow[]>("/experiments"),
+  assess: (body: { text: string; ablation: Record<string, boolean>; policy: Record<string, number | boolean>; detector_id: number | null }) =>
+    request<GuardAssessment>("/guard/assess", { method: "POST", body: JSON.stringify(body) }),
+  detectors: () => request<{ id: number; version: string; sha256: string; training_config: Record<string, unknown>; evaluation: Record<string, unknown> }[]>("/guard/detectors"),
+  guardEvaluations: () => request<{ id: number; config: Record<string, unknown>; created_at: string }[]>("/guard/evaluations"),
+  guardEvaluation: (id: number) => request<GuardEvaluationResult>(`/guard/evaluations/${id}`),
+  runGuardEvaluation: (body: Record<string, unknown>) =>
+    request<GuardEvaluationResult>("/guard/evaluations", { method: "POST", body: JSON.stringify(body) }),
+  trainDetector: (body: Record<string, unknown>) =>
+    request<{ id: number; version: string }>("/guard/detectors", { method: "POST", body: JSON.stringify(body) }),
   multimodal: (body: { text: string; width: number; font_size: number; run_ocr: boolean; run_vlm: boolean }) =>
     request<MultimodalResult>("/multimodal/analyze", { method: "POST", body: JSON.stringify(body) }),
   crsc: (id: number) => request<CRSCResult>(`/experiments/${id}/crsc`),
