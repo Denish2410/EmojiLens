@@ -1,4 +1,5 @@
 import type {
+  CRSCResult,
   ExperimentRow,
   InferResult,
   ModelsInfo,
@@ -94,6 +95,9 @@ export const api = {
   recipes: (slug: string, n: number) =>
     request<RecipeRow[]>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/recipes`),
   experiments: () => request<ExperimentRow[]>("/experiments"),
+  crsc: (id: number) => request<CRSCResult>(`/experiments/${id}/crsc`),
+  computeCrsc: (id: number, resamples: number, seed: number) =>
+    request<CRSCResult>(`/experiments/${id}/crsc`, { method: "POST", body: JSON.stringify({ resamples, seed }) }),
   experiment: (id: number) => request<ExperimentRow>(`/experiments/${id}`),
   createExperiment: (body: Record<string, unknown>) =>
     request<ExperimentRow>("/experiments", { method: "POST", body: JSON.stringify(body) }),

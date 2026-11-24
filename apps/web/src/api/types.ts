@@ -407,3 +407,29 @@ export interface RecipeRow {
   variants: number;
   invalid: number;
 }
+
+// ---- CRSC (v1, experimental) ----
+export interface MetricRow {
+  metric: "crsc_sem" | "crsc_safe";
+  model: string;
+  stratum: string;
+  stratum_value: string;
+  value: number | null;
+  ci_low: number | null;
+  ci_high: number | null;
+  n: number;
+  n_groups: number;
+  details: Record<string, number | null>;
+}
+export interface CRSCResult {
+  experiment_id: number;
+  crsc_version: string;
+  experimental: boolean;
+  computed_at: string | null;
+  resamples: number | null;
+  seed: number | null;
+  synthetic_fixture: boolean;
+  test_double: boolean;
+  research_reportable: boolean;
+  results: MetricRow[];
+}

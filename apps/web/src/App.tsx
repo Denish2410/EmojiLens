@@ -5,6 +5,7 @@ import { AppShell } from "./components/AppShell";
 import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./lib/theme";
 import { AnnotationStudio } from "./pages/AnnotationStudio";
+import { CRSCAnalytics } from "./pages/CRSCAnalytics";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
 import { ExperimentStudio } from "./pages/ExperimentStudio";
 import { ModelArena } from "./pages/ModelArena";
@@ -36,6 +37,7 @@ export function AppRoutes() {
         <Route path="annotation" element={<AnnotationStudio />} />
         <Route path="models" element={<ModelArena />} />
         <Route path="experiments" element={<ExperimentStudio />} />
+        <Route path="crsc" element={<CRSCAnalytics />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>

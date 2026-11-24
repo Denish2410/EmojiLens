@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Boxes, ClipboardCheck, Database, FlaskConical, Languages, LayoutDashboard, Menu, Moon, ScanSearch, Sun, Wand2, X } from "lucide-react";
+import { BarChart3, Boxes, ClipboardCheck, Database, FlaskConical, Languages, LayoutDashboard, Menu, Moon, ScanSearch, Sun, Wand2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router";
 import { useTheme } from "../lib/theme";
@@ -15,6 +15,7 @@ const NAV = [
   { to: "/annotation", label: "Annotation Studio", icon: ClipboardCheck, end: false },
   { to: "/models", label: "Model Arena", icon: Boxes, end: false },
   { to: "/experiments", label: "Experiment Studio", icon: FlaskConical, end: false },
+  { to: "/crsc", label: "CRSC Analytics", icon: BarChart3, end: false },
 ] as const;
 
 function NavItems({ onNavigate }: { onNavigate?: () => void }) {
