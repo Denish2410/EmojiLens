@@ -4,6 +4,8 @@ import { Copy, ScanSearch } from "lucide-react";
 import { useState } from "react";
 import { ApiError, api } from "../api/client";
 import type { Codepoint, UnicodeAnalysis } from "../api/types";
+import { EvidencePanel, type Selection } from "../components/inspector/EvidencePanel";
+import { ViewsPanel } from "../components/inspector/ViewsPanel";
 import { useToast } from "../components/Toast";
 import { Badge, Button, Card, CardHeader } from "../components/ui";
 import { copyText } from "../lib/clipboard";
@@ -43,14 +45,13 @@ function graphemeDisplay(text: string, cps: Codepoint[]): string {
 
 export function UnicodeInspector() {
   const [text, setText] = useState(SAMPLE);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(null);
   const toast = useToast();
   const mutation = useMutation<UnicodeAnalysis, ApiError, string>({
     mutationFn: api.analyzeUnicode,
-    onSuccess: () => setSelected(null),
+    onSuccess: () => setSelection(null),
   });
   const result = mutation.data;
-  const sel = selected !== null ? result?.graphemes[selected] : undefined;
 
   const copy = async (value: string, label: string) => {
     const ok = await copyText(value);
@@ -159,27 +160,57 @@ export function UnicodeInspector() {
                 <Badge tone={result.invisible_count ? "amber" : "neutral"}>
                   invisible: {result.invisible_count}
                 </Badge>
+                {Object.entries(result.scripts.counts).map(([script, n]) => (
+                  <Badge key={script} tone="cyan">
+                    {script}: {n}
+                  </Badge>
+                ))}
+                {result.scripts.is_mixed && <Badge tone="neutral">mixed scripts</Badge>}
               </div>
             </dl>
           </Card>
+
+          <EvidencePanel
+            evidence={result.evidence}
+            selection={selection}
+            onSelect={setSelection}
+          />
+
+          <ViewsPanel
+            original={result.original}
+            views={result.views}
+            selection={selection}
+            onSelect={setSelection}
+          />
 
           <Card>
             <CardHeader title="Grapheme clusters" />
             <ul className="flex flex-wrap gap-1.5 p-4" aria-label="Grapheme clusters">
               {result.graphemes.map((g) => {
                 const cps = result.codepoints.slice(g.span.cp_start, g.span.cp_end);
-                const hasInvisible = cps.every((c) => c.invisible);
+                const hasInvisible = cps.some((c) => c.invisible);
+                const gid = `grapheme:${g.index}`;
+                const inSel =
+                  selection !== null &&
+                  g.span.cp_start < selection.end &&
+                  g.span.cp_end > selection.start;
                 return (
                   <li key={g.index}>
                   <button
                     type="button"
                     aria-label={`Grapheme ${g.index}`}
-                    onClick={() => setSelected(selected === g.index ? null : g.index)}
-                    aria-pressed={selected === g.index}
+                    onClick={() =>
+                      setSelection(
+                        selection?.source === gid
+                          ? null
+                          : { start: g.span.cp_start, end: g.span.cp_end, source: gid },
+                      )
+                    }
+                    aria-pressed={selection?.source === gid}
                     title={`#${g.index} · ${g.codepoint_count} code point(s) · UTF-16 ${g.span.utf16_start}–${g.span.utf16_end}`}
                     className={clsx(
                       "flex min-w-9 flex-col items-center rounded-md border px-1.5 py-1 transition-colors",
-                      selected === g.index
+                      inSel
                         ? "border-violet-500 bg-violet-500/10"
                         : hasInvisible
                           ? "border-amber-500/40 bg-amber-500/5"
@@ -199,8 +230,10 @@ export function UnicodeInspector() {
             <CardHeader
               title="Code points"
               actions={
-                sel && (
-                  <Button onClick={() => setSelected(null)}>Clear selection (#{sel.index})</Button>
+                selection && (
+                  <Button onClick={() => setSelection(null)}>
+                    Clear selection (cp {selection.start}–{selection.end})
+                  </Button>
                 )
               }
             />
@@ -220,7 +253,7 @@ export function UnicodeInspector() {
                 <tbody className="font-mono text-xs">
                   {result.codepoints.map((c) => {
                     const inSel =
-                      sel && c.index >= sel.span.cp_start && c.index < sel.span.cp_end;
+                      selection !== null && c.index >= selection.start && c.index < selection.end;
                     return (
                       <tr
                         key={c.index}
@@ -258,8 +291,9 @@ export function UnicodeInspector() {
             <p className="border-t border-line px-4 py-2 text-xs text-muted">
               Markers describe structure only. They are not risk verdicts: joiners and variation
               selectors are legitimate in emoji sequences and in Devanagari or Gujarati text.
-              Engine {result.engine.engine_version} · Unicode data{" "}
-              {result.engine.unicodedata_version} · regex {result.engine.regex_version}
+              Engine {result.engine.engine_version} · rules {result.engine.ruleset_version} ·
+              Unicode data {result.engine.unicodedata_version} · regex{" "}
+              {result.engine.regex_version} · emoji {result.engine.emoji_version}
             </p>
           </Card>
         </>

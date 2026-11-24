@@ -51,7 +51,56 @@ export interface UnicodeAnalysis {
   graphemes: Grapheme[];
   codepoints: Codepoint[];
   invisible_count: number;
-  engine: { engine_version: string; unicodedata_version: string; regex_version: string };
+  scripts: { counts: Record<string, number>; dominant: string | null; is_mixed: boolean };
+  evidence: Evidence[];
+  views: DerivedView[];
+  engine: {
+    engine_version: string;
+    ruleset_version: string;
+    unicodedata_version: string;
+    regex_version: string;
+    emoji_version: string;
+  };
+}
+
+export type EvidenceCategory =
+  | "legitimate_structure"
+  | "informational"
+  | "anomalous"
+  | "suspicious"
+  | "concealed_payload_decoded";
+
+export const EVIDENCE_ORDER: EvidenceCategory[] = [
+  "legitimate_structure",
+  "informational",
+  "anomalous",
+  "suspicious",
+  "concealed_payload_decoded",
+];
+
+export interface Evidence {
+  id: string;
+  rule: string;
+  category: EvidenceCategory;
+  message: string;
+  span: Span;
+  details: Record<string, unknown>;
+}
+
+export type ViewName = "original" | "nfc" | "nfkc" | "sanitized" | "demojized" | "decoded";
+
+export interface ViewSegment {
+  original: Span;
+  view: Span;
+  text: string;
+}
+
+export interface DerivedView {
+  name: ViewName;
+  description: string;
+  text: string;
+  changed: boolean;
+  segments: ViewSegment[];
 }
 
 export interface Health {

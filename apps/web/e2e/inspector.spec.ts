@@ -16,11 +16,32 @@ test("analyses Unicode input end to end and preserves it exactly", async ({ page
   await page.getByRole("button", { name: /^Analyse$/ }).click();
 
   await expect(page.getByTestId("sha256")).toHaveText(expectedSha);
-  await expect(page.getByText("ZERO WIDTH SPACE")).toBeVisible();
-  await expect(page.getByText("ZERO WIDTH JOINER").first()).toBeVisible();
-  await expect(page.getByText("ZERO WIDTH NON-JOINER")).toBeVisible();
+  const cell = (name: string) => page.getByRole("cell", { name, exact: true });
+  await expect(cell("ZERO WIDTH SPACE")).toBeVisible();
+  await expect(cell("ZERO WIDTH JOINER").first()).toBeVisible();
+  await expect(cell("ZERO WIDTH NON-JOINER")).toBeVisible();
 
   // The family emoji is one grapheme made of five code points.
   const family = page.getByRole("button", { name: /^Grapheme \d+$/ }).filter({ hasText: "👨" });
   await expect(family).toContainText("5");
+});
+
+test("reveals a concealed tag payload and keeps legitimate Indic joiners", async ({ page }) => {
+  const hidden = Array.from("hello", (c) => String.fromCodePoint(0xe0000 + c.charCodeAt(0))).join("");
+  const input = `Nice day${hidden} ક્\u200cષ`;
+
+  await page.goto("/inspector");
+  await page.getByRole("textbox", { name: "Original text" }).fill(input);
+  await page.getByRole("button", { name: /^Analyse$/ }).click();
+
+  await expect(page.getByTestId("decoded-payload")).toHaveText("hello");
+  const findings = page.getByRole("list", { name: "Evidence findings" });
+  await expect(findings).toContainText("tag.ascii_payload");
+  await expect(findings).toContainText("indic.joiner_after_virama");
+  await expect(findings).toContainText("Legitimate structure");
+
+  // Sanitized view drops the tags but keeps the Gujarati ZWNJ.
+  await expect(page.getByTestId("view-text")).toHaveText("Nice day ક્\u200cષ");
+  await page.getByRole("tab", { name: /decoded/i }).click();
+  await expect(page.getByTestId("view-text")).toContainText("⟦hello⟧");
 });
