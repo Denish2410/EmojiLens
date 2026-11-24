@@ -1,7 +1,7 @@
 # Project Status
 
-**Current week:** 1 (Foundation)
-**Current milestone:** Week 1 is nearly complete. Only the literature review is outstanding.
+**Current week:** 3 (Multilingual and dataset foundation)
+**Current milestone:** Week 2 (Unicode forensics) is complete. The Week 1 literature review is still outstanding.
 **Last updated:** 2026-11-24
 
 ## Completed (verified, see docs/TEST_REPORT.md)
@@ -14,20 +14,23 @@
 - GitHub Actions CI is green (run #2). Run #1 caught Vitest collecting the Playwright spec, now fixed.
 - Research drafts: proposal, threat model; literature review skeleton
 
+- Week 2: evidence classifier, legitimate-structure recognition, homoglyph detection, decoders, derived views, Inspector evidence and views UI, source hygiene guard
+
 ## Pending (Week 1)
 - [ ] Literature review with individually verified references
 
 ## Blockers / external dependencies
+- **Network:** huggingface.co and unicode.org are blocked from the cloud dev workspace, so real model
+  inference (Weeks 6–9) needs those domains allowed (claude.ai Settings > Capabilities) or must run on the M4 Mac.
 - Human annotators (Weeks 5–8) are not yet recruited.
 - The Gujarati Tesseract pack (`guj`) is not installed in the dev container (needed in Week 8).
 
 ## Latest verified commit
-`2e79a3c` on `origin/main` (Denish2410/EmojiLens), CI green.
+See `git log -1 origin/main`; CI must be green before a batch counts as verified.
 
 ## Next exact task
-Week 2: implement the contextual evidence classifier in `emojilens_core/unicode/evidence.py`,
-starting with recognition of legitimate structures (RGI emoji ZWJ sequences, VS16/VS15, modifiers,
-keycaps, subdivision flags, and ZWJ/ZWNJ after a Devanagari or Gujarati virama). Write the tests first.
+Week 3: `emojilens_core/multilingual/`. Start with language-variety detection (en, hi, gu, hi-Latn,
+gu-Latn) with recorded uncertainty, then the M1 migration and JSONL dataset import.
 
 ## Estimated remaining work
-About 9 of 10 roadmap weeks. Week 1 acceptance criteria: 9 of 10 met (literature review outstanding).
+About 8 of 10 roadmap weeks. Weeks 1–2 met except the literature review.

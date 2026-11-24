@@ -1,5 +1,29 @@
 # Test Report
 
+## 2026-11-24: Week 2 Unicode forensics
+
+Same environment as below. All gates were run and judged by exit code:
+
+| Suite | Result |
+|---|---|
+| Ruff lint + format, mypy strict (31 files) | pass |
+| Pytest + Hypothesis | **90 passed** (core 75, API 14, repo hygiene 2) |
+| Source hygiene check | pass (no raw invisible/confusable characters) |
+| TypeScript, ESLint | pass (ESLint: 0 errors, 3 react-refresh warnings) |
+| Vitest | **16 passed** (2 files) |
+| Production build | pass |
+| Playwright E2E (real API) | **6 passed** (3 specs × desktop/mobile) |
+| GitHub Actions | see the run for the pushed commit |
+
+New coverage: benign multilingual and emoji controls stay at or below informational; all six RGI
+sequence subtypes; Devanagari and Gujarati ZWJ/ZWNJ after a virama; ZWSP splitting a word versus
+standing alone; out-of-context ZWJ; bidi controls without RTL text, unbalanced, and balanced isolates in
+RTL text; styled mathematical letters; mixed-script look-alike words with exact spans; tag and
+variation-selector payload decoding; undecodable variation-selector runs; property tests for view
+tiling and normalization equality; an API contract test; UI tests (ordering, inert payload rendering,
+cross-panel selection, view tabs); E2E covering a concealed tag payload alongside a legitimate Gujarati ZWNJ.
+
+
 ## 2026-11-24: Week 1 foundation
 
 **Environment:** Linux x86_64 dev container, Python 3.11 (uv 0.11), Node 22, pnpm 10.28,

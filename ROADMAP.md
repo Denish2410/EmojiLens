@@ -22,12 +22,15 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [ ] Research foundation: proposal, objectives and threat model are drafted; the **literature review with verified references** is not done yet
 
 ## Week 2 — Unicode Forensics
-- [ ] Evidence classifier (legitimate_structure / informational / anomalous / suspicious / concealed_payload_decoded)
-- [ ] Recognition of legitimate structures: RGI emoji ZWJ sequences, VS15/VS16, modifiers, keycaps, subdivision flags, and Indic ZWJ/ZWNJ after a virama
-- [ ] Mixed-script and homoglyph detection (confusables data)
-- [ ] Recognized decoders: tag-character ASCII, variation-selector byte encoding (documented schemes only)
-- [ ] Derived views (NFC, NFKC, sanitized, demojized, decoded) with offset maps back to the original
-- [ ] Inspector: evidence panel, derived-view comparison, character-level highlighting
+- [x] Evidence classifier (legitimate_structure / informational / anomalous / suspicious / concealed_payload_decoded)
+  - *AC:* benign English, Hindi, Gujarati, Hinglish, Gujlish and heavy-emoji controls never exceed informational (tested)
+- [x] Recognition of legitimate structures: RGI emoji ZWJ sequences, VS16 presentation, modifiers, keycaps, flags, subdivision flags; ZWJ/ZWNJ after an Indic virama; Arabic-script ZWNJ
+- [x] Mixed-script words with Latin look-alikes and whole-script confusables (confusables snapshot, see D-009)
+- [x] Recognized decoders: tag-character ASCII, variation-selector byte encoding; undecodable runs flagged, never guessed
+- [x] Derived views (original, NFC, NFKC, sanitized, demojized, decoded) as segment lists that tile the original
+  - *AC:* property tests confirm tiling and equality with whole-string NFC/NFKC
+- [x] Inspector: evidence panel, derived-view tabs, cross-panel character highlighting (unit + E2E tests)
+- [x] Source hygiene guard: no raw invisible/confusable characters in source files
 
 ## Week 3 — Multilingual and Dataset Foundation
 - [ ] Script detection and language metadata for en, hi, gu, hi-Latn and gu-Latn, recording uncertainty

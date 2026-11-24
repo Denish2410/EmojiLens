@@ -41,3 +41,28 @@ Revisit once typescript-eslint supports it.
 ## D-007 Navigation shows only implemented pages (2026-11-24)
 **Decision:** a page is added to the sidebar only when it is functional and backed by real data.
 **Rationale:** the specification forbids placeholder pages and non-functional UI elements.
+
+## D-008 Evidence rules are contextual, with legitimate structure first (2026-11-24)
+**Decision:** before any other rule runs, RGI emoji sequences (taken from the `emoji` package data)
+and joiners after a virama (canonical combining class 9) are marked `legitimate_structure`.
+Code points covered by legitimate structure are never escalated.
+**Alternatives:** flagging by code point type alone. Rejected because it would systematically flag Indic
+text and emoji-heavy messages.
+**Tradeoff:** non-RGI vendor ZWJ sequences are reported as `informational`, not legitimate.
+
+## D-009 Confusables data from `confusable_homoglyphs` (2026-11-24)
+**Decision:** Latin look-alikes come from the MIT-licensed `confusable_homoglyphs` 3.3.1 package,
+which bundles a snapshot of Unicode's confusables data.
+**Reason:** unicode.org is not reachable from the current development environment.
+**Limitation:** the snapshot predates the Unicode version used by `regex`, so newer look-alikes may be
+missed. *Unresolved:* vendoring a current `confusables.txt` once it can be downloaded and verified.
+
+## D-010 Only documented encodings are decoded (2026-11-24)
+**Decision:** decode only (a) tag characters as an ASCII mirror and (b) variation selectors as one byte
+each, accepted only when the bytes form valid UTF-8. Undecodable runs become `suspicious` with the raw
+bytes as hex. Nothing is guessed, and decoded text is never executed or rendered as markup.
+
+## D-011 Derived views as tiling segment lists (2026-11-24)
+**Decision:** each view is a list of `(original span, view span, text)` segments that tile the original
+exactly once. NFC and NFKC are applied per grapheme, falling back to a single segment if the
+concatenation differs from whole-string normalization, so correctness never depends on segmentation.
