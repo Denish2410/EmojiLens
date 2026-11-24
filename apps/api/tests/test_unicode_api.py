@@ -55,3 +55,22 @@ def test_empty_string_is_valid(client: TestClient) -> None:
 def test_openapi_documents_endpoint(client: TestClient) -> None:
     spec = client.get("/api/v1/openapi.json").json()
     assert URL in spec["paths"]
+
+
+def test_analyze_returns_evidence_scripts_and_views(client: TestClient) -> None:
+    hidden = "".join(chr(0xE0000 + ord(c)) for c in "ok")
+    r = client.post(URL, json={"text": "p\u0430ss\u200bword" + hidden})
+    body = r.json()
+    cats = {e["rule"]: e["category"] for e in body["evidence"]}
+    assert cats["zero_width.inside_word"] == "suspicious"
+    assert cats["tag.ascii_payload"] == "concealed_payload_decoded"
+    assert cats["homoglyph.mixed_script_word"] == "suspicious"
+    payload = next(e for e in body["evidence"] if e["rule"] == "tag.ascii_payload")
+    assert payload["details"]["decoded"] == "ok"
+    assert body["scripts"]["is_mixed"] is True
+    views = {v["name"]: v for v in body["views"]}
+    assert list(views) == ["original", "nfc", "nfkc", "sanitized", "demojized", "decoded"]
+    assert views["original"]["text"] == body["original"]
+    assert views["sanitized"]["text"] == "p\u0430ssword"
+    assert views["decoded"]["text"].endswith("⟦ok⟧")
+    assert body["engine"]["ruleset_version"]

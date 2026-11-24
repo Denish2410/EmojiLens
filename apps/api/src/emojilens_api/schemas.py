@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -71,8 +71,51 @@ class NormalizationOut(Model):
 
 class EngineOut(Model):
     engine_version: str
+    ruleset_version: str
     unicodedata_version: str
     regex_version: str
+    emoji_version: str
+
+
+EvidenceCategory = Literal[
+    "legitimate_structure",
+    "informational",
+    "anomalous",
+    "suspicious",
+    "concealed_payload_decoded",
+]
+
+
+class EvidenceOut(Model):
+    id: str
+    rule: str
+    category: EvidenceCategory
+    message: str
+    span: SpanOut
+    details: dict[str, Any]
+
+
+class ScriptsOut(Model):
+    counts: dict[str, int]
+    dominant: str | None
+    is_mixed: bool
+
+
+class ViewSegmentOut(Model):
+    original: SpanOut
+    view: SpanOut
+    text: str
+
+
+ViewName = Literal["original", "nfc", "nfkc", "sanitized", "demojized", "decoded"]
+
+
+class DerivedViewOut(Model):
+    name: ViewName
+    description: str
+    text: str
+    changed: bool
+    segments: list[ViewSegmentOut]
 
 
 class UnicodeAnalyzeRequest(Model):
@@ -87,6 +130,9 @@ class UnicodeAnalyzeResponse(Model):
     graphemes: list[GraphemeOut]
     codepoints: list[CodepointOut]
     invisible_count: int
+    scripts: ScriptsOut
+    evidence: list[EvidenceOut]
+    views: list[DerivedViewOut]
     engine: EngineOut
 
     @classmethod
@@ -122,6 +168,35 @@ class UnicodeAnalyzeResponse(Model):
                 for c in a.codepoints
             ],
             invisible_count=a.invisible_count,
+            scripts=ScriptsOut(**vars_slots(a.scripts)),
+            evidence=[
+                EvidenceOut(
+                    id=e.id,
+                    rule=e.rule,
+                    category=e.category.value,
+                    message=e.message,
+                    span=SpanOut.of(e.span),
+                    details=dict(e.details),
+                )
+                for e in a.evidence
+            ],
+            views=[
+                DerivedViewOut(
+                    name=v.name,
+                    description=v.description,
+                    text=v.text,
+                    changed=v.changed,
+                    segments=[
+                        ViewSegmentOut(
+                            original=SpanOut.of(seg.original),
+                            view=SpanOut.of(seg.view),
+                            text=seg.text,
+                        )
+                        for seg in v.segments
+                    ],
+                )
+                for v in a.views
+            ],
             engine=EngineOut(**vars_slots(a.engine)),
         )
 
