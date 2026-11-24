@@ -21,9 +21,11 @@ jobs:
         with:
           enable-cache: true
       - name: Install Tesseract OCR (eng, hin, guj)
-        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr tesseract-ocr-hin tesseract-ocr-guj fonts-dejavu-core
+        run: sudo apt-get update -q && sudo apt-get install -y -q tesseract-ocr tesseract-ocr-hin tesseract-ocr-guj fonts-dejavu-core fonts-noto-core fonts-noto-color-emoji
       - name: Install
         run: uv sync --all-packages --frozen --python 3.11
+      - name: Install Chromium for the renderer
+        run: uv run playwright install --with-deps chromium
       - name: Ruff
         run: uv run ruff check . && uv run ruff format --check .
       - name: mypy

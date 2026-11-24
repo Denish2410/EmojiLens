@@ -7,6 +7,7 @@ dependencies = [
     "confusable-homoglyphs>=3.3.1",
     "emoji>=2.12",
     "pillow>=10.4",
+    "playwright>=1.48",
     "pydantic>=2.8",
     "regex>=2024.5.15",
 ]
