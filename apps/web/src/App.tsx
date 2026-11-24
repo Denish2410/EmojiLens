@@ -6,6 +6,8 @@ import { ToastProvider } from "./components/Toast";
 import { ThemeProvider } from "./lib/theme";
 import { AnnotationStudio } from "./pages/AnnotationStudio";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
+import { ExperimentStudio } from "./pages/ExperimentStudio";
+import { ModelArena } from "./pages/ModelArena";
 import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
 import { TransformLab } from "./pages/TransformLab";
@@ -32,6 +34,8 @@ export function AppRoutes() {
         <Route path="multilingual" element={<MultilingualLab />} />
         <Route path="datasets" element={<DatasetExplorer />} />
         <Route path="annotation" element={<AnnotationStudio />} />
+        <Route path="models" element={<ModelArena />} />
+        <Route path="experiments" element={<ExperimentStudio />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>

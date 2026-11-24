@@ -1,4 +1,9 @@
 import type {
+  ExperimentRow,
+  InferResult,
+  ModelsInfo,
+  OutputRow,
+  RecipeRow,
   AgreementStats,
   AnnotatorRow,
   DisagreementRow,
@@ -80,6 +85,25 @@ export const api = {
     request<MultilingualResult>("/multilingual/analyze", { method: "POST", body: JSON.stringify({ text }) }),
   varieties: () => request<VarietyInfo[]>("/multilingual/varieties"),
   transforms: () => request<TransformSpec[]>("/transforms"),
+  models: () => request<ModelsInfo>("/models"),
+  infer: (key: string, capability: string, text: string) =>
+    request<InferResult>(`/models/${encodeURIComponent(key)}/infer`, {
+      method: "POST",
+      body: JSON.stringify({ capability, text }),
+    }),
+  recipes: (slug: string, n: number) =>
+    request<RecipeRow[]>(`/datasets/${encodeURIComponent(slug)}/versions/${n}/recipes`),
+  experiments: () => request<ExperimentRow[]>("/experiments"),
+  experiment: (id: number) => request<ExperimentRow>(`/experiments/${id}`),
+  createExperiment: (body: Record<string, unknown>) =>
+    request<ExperimentRow>("/experiments", { method: "POST", body: JSON.stringify(body) }),
+  cancelExperiment: (id: number) => request<ExperimentRow>(`/experiments/${id}/cancel`, { method: "POST" }),
+  resumeExperiment: (id: number) => request<ExperimentRow>(`/experiments/${id}/resume`, { method: "POST" }),
+  outputs: (id: number, params: Record<string, string | number | boolean | undefined>) => {
+    const qs = new URLSearchParams();
+    for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== "" && v !== false) qs.set(k, String(v));
+    return request<{ total: number; page: number; page_size: number; items: OutputRow[] }>(`/experiments/${id}/outputs?${qs}`);
+  },
   annotators: () => request<AnnotatorRow[]>("/annotation/annotators"),
   createAnnotator: (body: { pseudonym: string; proficiency: Record<string, string> }) =>
     request<AnnotatorRow>("/annotation/annotators", { method: "POST", body: JSON.stringify(body) }),

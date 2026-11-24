@@ -321,3 +321,89 @@ export interface AgreementStats {
   adjudicated: number;
   note: string;
 }
+
+// ---- Models & experiments (v1) ----
+export type CapabilityName = "TOKENIZE" | "CLASSIFY" | "EMBED" | "GENERATE" | "VISION_INPUT" | "OCR";
+
+export interface ModelInfo {
+  key: string;
+  model_id: string;
+  adapter: string;
+  capabilities: CapabilityName[];
+  license: string;
+  revision: string | null;
+  languages: string[];
+  approx_ram_gb: number;
+  approx_disk_gb: number;
+  notes: string;
+  test_double: boolean;
+  availability: "available" | "not_downloaded" | "dependency_missing" | "resources_insufficient";
+  availability_detail: string;
+  loaded: boolean;
+}
+
+export interface ModelsInfo {
+  device: string;
+  device_reason: string;
+  resources: { available_ram_gb: number | null; free_disk_gb: number; cache_dir: string };
+  models: ModelInfo[];
+}
+
+export interface InferResult {
+  model: string;
+  capability: string;
+  raw_output: unknown;
+  normalized: Record<string, unknown>;
+  latency_ms: number;
+  tokenization: { tokens: string[]; ids: number[]; offsets: ([number, number] | null)[]; unknown: number } | null;
+  metadata: { model_id: string; revision: string | null; device: string; adapter_version: string; test_double: boolean; library_versions: Record<string, string> };
+  error: { code: string; message: string } | null;
+}
+
+export type ExperimentStatus = "queued" | "running" | "cancelling" | "cancelled" | "completed" | "failed" | "interrupted";
+
+export interface ExperimentRow {
+  id: number;
+  name: string;
+  status: ExperimentStatus;
+  config: Record<string, unknown>;
+  config_hash: string;
+  total_items: number;
+  done_items: number;
+  failed_items: number;
+  cancel_requested: boolean;
+  error: string | null;
+  created_at: string;
+  started_at: string | null;
+  finished_at: string | null;
+  uses_test_doubles: boolean;
+}
+
+export interface OutputRow {
+  id: number;
+  model_key: string;
+  model_id: string;
+  revision: string | null;
+  test_double: boolean;
+  source_id: string;
+  variant_id: number | null;
+  families: string | null;
+  language: string;
+  split: string | null;
+  input_text: string;
+  capability: string;
+  modality: string;
+  normalized: Record<string, unknown>;
+  latency_ms: number;
+  error: { code: string; message: string } | null;
+  behavior: string | null;
+  safety: string | null;
+}
+
+export interface RecipeRow {
+  recipe_hash: string;
+  families: string;
+  seed: number;
+  variants: number;
+  invalid: number;
+}
