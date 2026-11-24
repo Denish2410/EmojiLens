@@ -9,6 +9,7 @@ import { CRSCAnalytics } from "./pages/CRSCAnalytics";
 import { DatasetExplorer } from "./pages/DatasetExplorer";
 import { ExperimentStudio } from "./pages/ExperimentStudio";
 import { ModelArena } from "./pages/ModelArena";
+import { MultimodalLab } from "./pages/MultimodalLab";
 import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
 import { TransformLab } from "./pages/TransformLab";
@@ -38,6 +39,7 @@ export function AppRoutes() {
         <Route path="models" element={<ModelArena />} />
         <Route path="experiments" element={<ExperimentStudio />} />
         <Route path="crsc" element={<CRSCAnalytics />} />
+        <Route path="multimodal" element={<MultimodalLab />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>

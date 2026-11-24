@@ -433,3 +433,35 @@ export interface CRSCResult {
   research_reportable: boolean;
   results: MetricRow[];
 }
+
+// ---- Multimodal (v1) ----
+export interface Reading {
+  model: string;
+  available: boolean;
+  detail: string;
+  text: string | null;
+  confidence: number | null;
+  latency_ms: number | null;
+  error: { code: string; message: string } | null;
+  comparison: {
+    reference: string;
+    reading: string;
+    grapheme_error_rate: number | null;
+    exact_match: boolean;
+    nfkc_casefold_match: boolean;
+    hidden_codepoints_in_original: number;
+    hidden_codepoints_recovered: number;
+  } | null;
+  metadata: Record<string, unknown> | null;
+}
+export interface MultimodalResult {
+  artifact_id: number;
+  image_url: string;
+  image_sha256: string;
+  width: number;
+  height: number;
+  renderer: string;
+  provenance: Record<string, unknown>;
+  ocr: Reading | null;
+  vlm: Reading | null;
+}

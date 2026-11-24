@@ -64,6 +64,8 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @emojilens/web exec playwright install --with-deps chromium
+      - run: uv run playwright install --with-deps chromium
+      - run: sudo apt-get install -y -q tesseract-ocr tesseract-ocr-hin fonts-noto-core fonts-noto-color-emoji
       - run: pnpm --filter @emojilens/web exec playwright test
         env:
           CI: "1"
