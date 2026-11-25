@@ -18,6 +18,7 @@ from emojilens_api.errors import install_error_handlers
 from emojilens_api.routers import (
     annotation,
     consistency,
+    dashboard,
     datasets,
     experiments,
     guard,
@@ -107,4 +108,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(consistency.router, prefix=API_PREFIX)
     app.include_router(multimodal.router, prefix=API_PREFIX)
     app.include_router(guard.router, prefix=API_PREFIX)
+    app.include_router(dashboard.router, prefix=API_PREFIX)
     return app
