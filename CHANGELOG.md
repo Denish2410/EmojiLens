@@ -22,7 +22,13 @@ All notable changes are documented here. Format based on Keep a Changelog.
   with cancel, interrupt and resume; CRSC-sem and CRSC-safe (experimental) with group bootstrap, M5; sandboxed
   Chromium renderer and OCR path, M6; EmojiGuard rules, detector, baselines and ablations, M7; Model Arena,
   Experiment Studio, CRSC Analytics, Multimodal Laboratory, EmojiGuard Console, Evaluation Dashboard.
+- Model `task` metadata, `docs/MODEL_SUITABILITY.md`, and per-output language coverage
+  (`_language`, `_language_supported`).
+- `vlm` experiment modality (render, then VISION_INPUT) with an optional prompt; Experiment Studio
+  modality selection.
 ### Fixed
+- Non-safety classifiers (the sentiment model) can no longer have their labels mapped to safety
+  judgments (API, worker and UI).
 - Annotation submit race (form now disabled while a submission is pending) and the flaky annotation E2E (CI #8).
 - API registry now applies model pins (wiring missing in bfb7d0c).
 - `.gitignore` `models/` also ignored the source package; anchored to `/models/`.

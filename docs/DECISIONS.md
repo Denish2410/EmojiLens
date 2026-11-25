@@ -145,3 +145,17 @@ Fonts are configurable but validated to letters, digits, spaces and hyphens.
 ## D-025 Patch scripts must assert their targets (2026-11-25)
 **Context:** two silent no-op text replacements meant the API registry ignored pinned revisions
 (described in bfb7d0c, fixed in 87511c7). All scripted edits now assert that each target string exists.
+
+## D-026 Model task gates safety judgments (2026-11-26)
+**Context:** the only catalogue classifier is a sentiment model. A label map such as `negative=unsafe`
+would have turned sentiment into a safety verdict, which the spec forbids.
+**Decision:** every `ModelConfig` declares a `task`. Safety judgments come only from task `safety`, and this
+is enforced by the API (`not_a_safety_classifier`), the worker and the UI. Each output also records its
+language coverage. See `docs/MODEL_SUITABILITY.md`.
+
+## D-027 VLM modality pairs only with VISION_INPUT (2026-11-26)
+**Decision:** the `vlm` experiment modality renders each item in the sandboxed renderer and sends the image
+to VISION_INPUT models. VISION_INPUT never runs on text or OCR input, and `vlm` never runs text
+capabilities. Mismatches return `modality_capability_mismatch`. Outputs record the artifact id, image
+SHA-256 and prompt, never a file path. An optional `vlm_prompt` enters the config hash only when it is set,
+so hashes of non-VLM runs are unchanged.

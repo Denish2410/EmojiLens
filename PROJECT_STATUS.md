@@ -24,7 +24,8 @@ Fixture-only testing never counts as real-model validation.
 | W7 CRSC-sem / CRSC-safe (experimental), M5 | ✅ | ✅ math sanity | ❌ | real model outputs | ⬜ |
 | W7 CRSC Analytics | ✅ | ✅ | — | — | ⬜ |
 | W8 sandboxed renderer, OCR path, M6 | ✅ | ✅ | ✅ Chromium + Tesseract (en, hi) | — | ⬜ (VLM) |
-| W8 VLM path | ✅ adapter | contract only | ❌ | **model downloads** | ⬜ |
+| W8 VLM path (adapter + `vlm` experiment modality) | ✅ | ✅ (test double, real Chromium render) | ❌ never run | **model downloads** | ⬜ |
+| Model task / safety-eligibility gate, language coverage | ✅ | ✅ | n/a | — | ✅ (engineering) |
 | W8 Multimodal Laboratory | ✅ | ✅ unit + E2E | ✅ real render/OCR in E2E | — | ⬜ |
 | W9 EmojiGuard rules, view re-scoring, policy | ✅ | ✅ | n/a | — | ⬜ (needs real evaluation) |
 | W9 learned detector, baselines, ablations, M7 | ✅ | ✅ (synthetic fixture only) | n/a | real evaluation data | ⬜ |
@@ -47,7 +48,6 @@ doubles and are flagged "not research-reportable" in the UI and API. No human an
 
 ## Remaining engineering work
 - `real_model` integration tests that execute each HF adapter (to run on the M4).
-- A `vlm` experiment modality (adapter exists; worker wiring pending a runnable model).
 - An Overview dashboard refresh (model availability, experiment status, dataset statistics).
 - A Settings and System page (spec M).
 - Week 10: frozen research configurations, a report generated from stored results, a fresh-clone check and a release tag.
