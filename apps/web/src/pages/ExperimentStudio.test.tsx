@@ -21,6 +21,11 @@ function base(list: ExperimentRow[]) {
     http.get("*/api/v1/experiments", () => HttpResponse.json(list)),
     http.get("*/api/v1/experiments/4", () => HttpResponse.json(exp)),
     http.get("*/api/v1/experiments/4/outputs", () => HttpResponse.json({ total: 0, page: 1, page_size: 25, items: [] })),
+    http.get("*/api/v1/experiments/4/eligibility", () => HttpResponse.json({
+      eligible: false, version: "1.0",
+      rules: [{ key: "no_test_doubles", ok: false, reason: "test doubles used: td" }],
+      blocking: ["test doubles used: td"],
+    })),
   );
 }
 
@@ -45,6 +50,9 @@ describe("Experiment Studio", () => {
     await user.click(screen.getByRole("button", { name: /#4 run a/ }));
     expect(await screen.findByRole("alert")).toHaveTextContent("resume to continue");
     expect(screen.getAllByText(/TEST DOUBLE/).length).toBeGreaterThan(0);
+    expect(await screen.findByTestId("eligibility")).toHaveTextContent("not reportable");
+    expect(screen.getByText("test doubles used: td")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Download manifest" })).toHaveAttribute("href", "/api/v1/experiments/4/manifest");
     await user.click(screen.getByRole("button", { name: "Resume experiment 4" }));
     expect(resumed).toBe(true);
   });

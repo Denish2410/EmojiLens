@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { Ban, FlaskConical, Play, RotateCcw } from "lucide-react";
 import { useState, type FormEvent } from "react";
-import { ApiError, api } from "../api/client";
+import { ApiError, API_BASE, api } from "../api/client";
 import type { ExperimentRow, ExperimentStatus } from "../api/types";
 import { Badge, Button, Card, CardHeader, Skeleton } from "../components/ui";
 import { TestDoubleBanner } from "./ModelArena";
@@ -152,6 +152,7 @@ function Detail({ id }: { id: number }) {
   const [page, setPage] = useState(1);
   const exp = useQuery({ queryKey: ["experiment", id], queryFn: () => api.experiment(id), refetchInterval: (q) => (q.state.data && ACTIVE.includes(q.state.data.status) ? 1500 : false) });
   const outs = useQuery({ queryKey: ["outputs", id, errorsOnly, page, exp.data?.done_items], queryFn: () => api.outputs(id, { page, page_size: 25, errors_only: errorsOnly }) });
+  const elig = useQuery({ queryKey: ["eligibility", id, exp.data?.status], queryFn: () => api.eligibility(id), enabled: Boolean(exp.data) });
   if (!exp.data) return <Skeleton className="m-4 h-24" />;
   const e = exp.data;
   const pages = outs.data ? Math.max(1, Math.ceil(outs.data.total / 25)) : 1;
@@ -168,6 +169,19 @@ function Detail({ id }: { id: number }) {
         <div><dt className="text-muted">Config hash</dt><dd className="font-mono break-all">{e.config_hash}</dd></div>
         <div><dt className="text-muted">Failed items</dt><dd className="font-mono">{e.failed_items}</dd></div>
       </dl>
+      {elig.data && (
+        <section aria-label="Research eligibility" data-testid="eligibility" className="rounded-md border border-line p-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <h4 className="text-sm font-medium">Research eligibility</h4>
+            <Badge tone={elig.data.eligible ? "emerald" : "amber"}>{elig.data.eligible ? "eligible for reporting" : "not reportable"}</Badge>
+            <span className="font-mono text-muted">rules v{elig.data.version}</span>
+            <a className="ml-auto text-violet-600 underline-offset-2 hover:underline dark:text-violet-300" href={`${API_BASE}/experiments/${e.id}/manifest`} download={`experiment-${e.id}-manifest.json`}>Download manifest</a>
+          </div>
+          {elig.data.blocking.length > 0 && (
+            <ul className="mt-2 list-disc pl-5 text-muted">{elig.data.blocking.map((r) => <li key={r}>{r}</li>)}</ul>
+          )}
+        </section>
+      )}
       <details className="text-xs"><summary className="cursor-pointer text-muted">Full configuration</summary><pre className="mt-2 overflow-auto rounded bg-surface-2 p-2 font-mono">{JSON.stringify(e.config, null, 2)}</pre></details>
       <div className="flex items-center gap-3">
         <h4 className="text-sm font-medium">Stored outputs</h4>

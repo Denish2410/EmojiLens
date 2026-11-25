@@ -504,6 +504,10 @@ export interface GuardEvaluationResult {
   };
 }
 
+// ---- Provenance ----
+export interface EligibilityRule { key: string; ok: boolean; reason: string }
+export interface Eligibility { eligible: boolean; version: string; rules: EligibilityRule[]; blocking: string[] }
+
 // ---- Dashboard ----
 export interface ReadinessItem { key: string; label: string; ok: boolean; detail: string }
 export interface DashboardSummary {

@@ -21,6 +21,7 @@ import type {
   Dataset,
   DashboardSummary,
   SystemInfo,
+  Eligibility,
   DatasetKind,
   Health,
   ImportResult,
@@ -82,6 +83,7 @@ export const api = {
   ready: () => request<Readiness>("/ready", undefined, [503]),
   dashboard: () => request<DashboardSummary>("/dashboard/summary"),
   systemInfo: () => request<SystemInfo>("/system/info"),
+  eligibility: (id: number) => request<Eligibility>(`/experiments/${id}/eligibility`),
   analyzeUnicode: (text: string) =>
     request<UnicodeAnalysis>("/unicode/analyze", {
       method: "POST",
