@@ -30,6 +30,7 @@ from emojilens_api.db.models import (
     Source,
     Variant,
 )
+from emojilens_api.services.provenance import eligibility
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -73,27 +74,10 @@ def _count(session: Session, stmt: Any) -> int:
     return int(session.scalar(stmt) or 0)
 
 
-def _reportable_experiment_ids(session: Session) -> set[int]:
-    """Completed runs on evaluation datasets whose stored outputs include no test double."""
+def _reportable_experiment_ids(session: Session, registry: Any) -> set[int]:
+    """Runs that pass every research-eligibility rule (emojilens_core.repro.eligibility)."""
     completed = session.scalars(select(Experiment).where(Experiment.status == "completed")).all()
-    on_eval = {e.id for e in completed if e.config.get("dataset_kind") == "evaluation"}
-    if not on_eval:
-        return set()
-    tainted = set(
-        session.scalars(
-            select(distinct(ModelOutput.experiment_id))
-            .join(ModelVersion, ModelVersion.id == ModelOutput.model_version_id)
-            .where(ModelOutput.experiment_id.in_(on_eval), ModelVersion.test_double.is_(True))
-        ).all()
-    )
-    with_outputs = set(
-        session.scalars(
-            select(distinct(ModelOutput.experiment_id)).where(
-                ModelOutput.experiment_id.in_(on_eval)
-            )
-        ).all()
-    )
-    return with_outputs - tainted
+    return {e.id for e in completed if eligibility(session, registry, e).eligible}
 
 
 @router.get("/summary", response_model=DashboardSummary)
@@ -121,7 +105,7 @@ def summary(request: Request) -> DashboardSummary:
         invalid_variants = _count(
             s, select(func.count()).select_from(Variant).where(Variant.valid.is_(False))
         )
-        family_rows = s.scalars(select(distinct(Variant.families))).all()
+        family_rows = s.scalars(select(Variant.families).distinct()).all()
         families = sorted({f for row in family_rows for f in row.split("+") if f})
         recipes = _count(s, select(func.count(distinct(Variant.recipe_hash))))
         annotators = _count(s, select(func.count()).select_from(Annotator))
@@ -142,7 +126,7 @@ def summary(request: Request) -> DashboardSummary:
             .join(ModelVersion, ModelVersion.id == ModelOutput.model_version_id)
             .where(ModelVersion.test_double.is_(True)),
         )
-        reportable_ids = _reportable_experiment_ids(s)
+        reportable_ids = _reportable_experiment_ids(s, reg)
         metric_rows = _count(s, select(func.count()).select_from(MetricResult))
         metric_experiments = _count(s, select(func.count(distinct(MetricResult.experiment_id))))
         renders = _count(s, select(func.count()).select_from(RenderArtifact))
@@ -189,7 +173,8 @@ def summary(request: Request) -> DashboardSummary:
             key="reportable_experiment",
             label="Reportable experiment",
             ok=bool(reportable_ids),
-            detail=f"{len(reportable_ids)} completed run(s) on evaluation data with no test double",
+            detail=f"{len(reportable_ids)} run(s) pass every eligibility rule (evaluation data, "
+            "no test doubles, pinned revisions, recorded environment)",
         ),
     ]
 

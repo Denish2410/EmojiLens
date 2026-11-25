@@ -300,3 +300,50 @@ def test_models_endpoint_hides_absolute_cache_path(client: TestClient) -> None:
     cache = client.get("/api/v1/models").json()["resources"]["cache_dir"]
     assert not cache.startswith(str(Path.home()))
     assert cache.startswith("~") or cache == "(configured location)"
+
+
+def test_runs_record_environment_and_explain_ineligibility(td_client: TestClient) -> None:
+    recipe = dataset(td_client)
+    exp = td_client.post("/api/v1/experiments", json=body(recipe)).json()
+    pending = td_client.get(f"/api/v1/experiments/{exp['id']}/eligibility").json()
+    assert pending["eligible"] is False
+    assert {"completed", "environment"} <= {r["key"] for r in pending["rules"] if not r["ok"]}
+    run_worker(td_client)
+    elig = td_client.get(f"/api/v1/experiments/{exp['id']}/eligibility").json()
+    blocked = {r["key"] for r in elig["rules"] if not r["ok"]}
+    assert blocked == {"evaluation_dataset", "no_test_doubles"}
+    m = td_client.get(f"/api/v1/experiments/{exp['id']}/manifest").json()
+    assert m["schema"] == "emojilens.manifest/1"
+    assert m["experiment"]["config_hash"] == exp["config_hash"]
+    assert m["dataset"]["kind"] == "synthetic_fixture"
+    assert len(m["dataset"]["content_sha256"]) == 64
+    assert m["recipes"][0]["recipe"] is not None
+    assert m["models"][0]["test_double"] is True
+    assert len(m["run_environments"]) == 1
+    assert m["run_environments"][0]["git"]["commit"]
+    assert m["outputs"]["count"] > 0
+    assert m["eligibility"]["eligible"] is False
+    again = td_client.get(f"/api/v1/experiments/{exp['id']}/manifest").json()
+    assert again["outputs"]["sha256"] == m["outputs"]["sha256"]  # digest is stable
+    raw = json.dumps(m)
+    from pathlib import Path
+
+    assert str(Path.home()) not in raw
+
+
+def test_resume_appends_a_run_environment(td_client: TestClient) -> None:
+    recipe = dataset(td_client)
+    exp = td_client.post("/api/v1/experiments", json=body(recipe)).json()
+    sm = td_client.app.state.sessionmaker  # type: ignore[attr-defined]
+    td_client.app.state.worker.run_once()  # type: ignore[attr-defined]
+    with sm() as s:
+        from emojilens_api.db.models import Experiment
+
+        e = s.get(Experiment, exp["id"])
+        assert e is not None
+        e.status = "interrupted"
+        s.commit()
+    td_client.post(f"/api/v1/experiments/{exp['id']}/resume")
+    run_worker(td_client)
+    m = td_client.get(f"/api/v1/experiments/{exp['id']}/manifest").json()
+    assert len(m["run_environments"]) == 2

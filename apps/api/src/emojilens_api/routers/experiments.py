@@ -10,6 +10,7 @@ from sqlalchemy import func, select
 from emojilens_api.db.models import Experiment, ModelOutput, ModelVersion, Source, Variant
 from emojilens_api.errors import ApiError, ErrorResponse
 from emojilens_api.services import datasets as svc
+from emojilens_api.services import provenance
 from emojilens_api.services.experiments import (
     SUPPORTED_MODALITIES,
     TERMINAL,
@@ -213,6 +214,21 @@ def resume(exp_id: int, request: Request) -> ExperimentOut:
         exp.status, exp.cancel_requested, exp.error, exp.finished_at = "queued", False, None, None
         session.commit()
         return _out(exp, _reg(request))
+
+
+@router.get("/{exp_id}/eligibility", responses={404: {"model": ErrorResponse}})
+def get_eligibility(exp_id: int, request: Request) -> dict[str, Any]:
+    """Whether this run may appear in a research report, with every failing rule explained."""
+    with request.app.state.sessionmaker() as session:
+        return provenance.eligibility(session, _reg(request), _get(session, exp_id)).to_dict()
+
+
+@router.get("/{exp_id}/manifest", responses={404: {"model": ErrorResponse}})
+def get_manifest(exp_id: int, request: Request) -> dict[str, Any]:
+    """Reproducibility manifest: config, dataset and split hashes, recipes, model builds,
+    run environments, an output digest and eligibility. Built from stored rows only."""
+    with request.app.state.sessionmaker() as session:
+        return provenance.manifest(session, _reg(request), _get(session, exp_id))
 
 
 @router.get("/{exp_id}/outputs", response_model=OutputPage)

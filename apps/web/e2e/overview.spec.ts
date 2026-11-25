@@ -11,7 +11,7 @@ test("overview dashboard reads stored counts from the real API", async ({ page }
 test("settings shows system facts without filesystem paths", async ({ page }) => {
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: "Models and pinned revisions" })).toBeVisible();
-  await expect(page.getByText(/head 0008_m7_guard/)).toBeVisible();
+  await expect(page.getByText(/\(head 00\d\d_m\d_/)).toBeVisible();
   const body = await page.locator("main").innerText();
   expect(body).not.toMatch(/\/home\/|\/Users\/|sqlite:\/\//);
 });
