@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from emojilens_core.models import Capability, InferenceResult, ModelRegistry
+from emojilens_core.multimodal.compare import compare
 
 # Harmless greeting-and-plan probes, one per supported variety, each with an emoji.
 PROBES: dict[str, str] = {
@@ -68,10 +69,12 @@ class ModelReport:
 
 
 def output_hash(result: InferenceResult) -> str:
-    raw = result.raw_output
+    """Hash of everything the model returned (raw and normalized), so adapters whose raw output is
+    only a summary (Tesseract returns a row count) still get a content-sensitive hash."""
+    payload: dict[str, Any] = {"raw": result.raw_output, "normalized": result.normalized}
     if result.tokenization is not None:
-        raw = {"tokens": result.tokenization.tokens, "ids": result.tokenization.ids}
-    blob = json.dumps(raw, sort_keys=True, ensure_ascii=False, default=repr)
+        payload["tokens"] = [result.tokenization.tokens, result.tokenization.ids]
+    blob = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=repr)
     return hashlib.sha256(blob.encode("utf-8")).hexdigest()
 
 
@@ -139,8 +142,12 @@ def validate_model(
             h1, h2 = output_hash(first), output_hash(second)
             summary = _summary(first)
             if cap in IMAGE_CAPS and isinstance(first.normalized.get("text"), str):
-                # Whitespace-insensitive exact read-back of the probe; a quality signal only.
-                summary["exact_readback"] = first.normalized["text"].split() == text.split()
+                # Read-back quality on the probe (the project's grapheme error rate); a signal only.
+                cmp = compare(text, first.normalized["text"])
+                summary["exact_readback"] = cmp.exact_match
+                summary["ger"] = (
+                    None if cmp.grapheme_error_rate is None else round(cmp.grapheme_error_rate, 3)
+                )
             probes.append(
                 ProbeResult(
                     key,

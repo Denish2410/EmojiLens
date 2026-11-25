@@ -45,6 +45,7 @@ def test_available_model_executes_every_probe_deterministically() -> None:
     assert all(p.language_declared is None for p in rep.probes)  # double declares no languages
     vision = [p for p in rep.probes if p.capability == Capability.VISION_INPUT.value]
     assert {p.summary["exact_readback"] for p in vision} == {False}
+    assert all(p.summary["ger"] > 0 for p in vision)
 
 
 def test_image_capabilities_skip_without_renderer() -> None:
@@ -73,3 +74,16 @@ def test_markdown_labels_test_doubles_and_disclaims_research() -> None:
     assert "(TEST DOUBLE)" in md
     assert "not** a research result" in md
     assert "| td (TEST DOUBLE) |" in md
+
+
+def test_output_hash_covers_normalized_output() -> None:
+    from emojilens_core.repro.validation import output_hash
+
+    reg = registry()
+    a = reg.run("td", Capability.GENERATE, "hello one")
+    b = reg.run("td", Capability.GENERATE, "hello two")
+    assert output_hash(a) != output_hash(b)
+    from dataclasses import replace
+
+    same_raw = replace(b, raw_output=a.raw_output)
+    assert output_hash(same_raw) != output_hash(a)  # differs through normalized text alone
