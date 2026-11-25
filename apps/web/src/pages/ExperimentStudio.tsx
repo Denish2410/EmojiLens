@@ -16,6 +16,12 @@ const STATUS_TONE: Record<ExperimentStatus, "neutral" | "cyan" | "amber" | "emer
   failed: "red",
   interrupted: "red",
 };
+const TEXT_CAPS = ["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE"];
+const MODALITIES: { id: string; label: string; help: string }[] = [
+  { id: "text", label: "text", help: "the stored text" },
+  { id: "ocr", label: "ocr", help: "rendered, then read back by Tesseract" },
+  { id: "vlm", label: "vlm", help: "rendered image sent to VISION_INPUT models" },
+];
 const ACTIVE: ExperimentStatus[] = ["queued", "running", "cancelling"];
 const field = "w-full min-w-0 rounded-md border border-line bg-surface-2 px-2 py-1 text-sm";
 
@@ -41,14 +47,21 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
   const [caps, setCaps] = useState<string[]>(["CLASSIFY"]);
   const [recipes, setRecipes] = useState<string[]>([]);
   const [labelMap, setLabelMap] = useState("");
+  const [modalities, setModalities] = useState<string[]>(["text"]);
+  const [vlmPrompt, setVlmPrompt] = useState("");
   const [slug, n] = target ? [target.split("@")[0] ?? "", Number(target.split("@")[1])] : ["", 0];
   const recipeList = useQuery({ queryKey: ["recipes", slug, n], queryFn: () => api.recipes(slug, n), enabled: Boolean(target) });
   const frozen = (datasets.data ?? []).flatMap((d) => d.versions.filter((v) => v.frozen_at).map((v) => ({ key: `${d.slug}@${v.number}`, label: `${d.name} v${v.number}`, kind: d.kind })));
-  const available = (models.data?.models ?? []).filter((m) => m.availability === "available" && m.capabilities.some((c) => ["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE"].includes(c)));
+  const available = (models.data?.models ?? []).filter((m) => m.availability === "available" && m.capabilities.some((c) => [...TEXT_CAPS, "VISION_INPUT"].includes(c)));
   const create = useMutation<ExperimentRow, ApiError, void>({
     mutationFn: () => {
       const map = Object.fromEntries(labelMap.split("\n").map((l) => l.split("=").map((x) => x.trim())).filter((p) => p.length === 2 && p[0] && (p[1] === "safe" || p[1] === "unsafe")));
-      return api.createExperiment({ name, dataset: slug, version: n, recipe_hashes: recipes, model_keys: modelKeys, capabilities: caps, label_map: canMapSafety && Object.keys(map).length ? map : null });
+      return api.createExperiment({
+        name, dataset: slug, version: n, recipe_hashes: recipes, model_keys: modelKeys,
+        capabilities: sentCaps, modalities,
+        label_map: canMapSafety && Object.keys(map).length ? map : null,
+        ...(wantsVlm && vlmPrompt.trim() ? { vlm_prompt: vlmPrompt.trim() } : {}),
+      });
     },
     onSuccess: (e) => { void qc.invalidateQueries({ queryKey: ["experiments"] }); onCreated(e.id); },
   });
@@ -56,7 +69,13 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
   const submit = (e: FormEvent) => { e.preventDefault(); create.mutate(); };
   const kind = frozen.find((f) => f.key === target)?.kind;
   const safetyModels = available.filter((m) => modelKeys.includes(m.key) && m.task === "safety");
-  const canMapSafety = safetyModels.length > 0 && caps.includes("CLASSIFY");
+  const wantsVlm = modalities.includes("vlm");
+  const textModalities = modalities.some((m) => m !== "vlm");
+  // VISION_INPUT runs only with the vlm modality, so it follows that choice rather than a checkbox.
+  const sentCaps = [...(textModalities ? caps : []), ...(wantsVlm ? ["VISION_INPUT"] : [])];
+  const canMapSafety = safetyModels.length > 0 && textModalities && caps.includes("CLASSIFY");
+  const visionModels = available.filter((m) => modelKeys.includes(m.key) && m.capabilities.includes("VISION_INPUT"));
+  const vlmProblem = wantsVlm && modelKeys.length > 0 && visionModels.length === 0 ? "None of the selected models accepts images (VISION_INPUT)." : null;
 
   return (
     <form onSubmit={submit} aria-label="New experiment" className="flex min-w-0 flex-col gap-4 p-4">
@@ -90,12 +109,30 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
           ))}
         </fieldset>
         <fieldset className="flex flex-col gap-1.5">
-          <legend className="mb-1 text-xs font-medium text-muted">Capabilities</legend>
-          {["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE"].map((c) => (
-            <label key={c} className="flex items-center gap-2 font-mono text-xs"><input type="checkbox" checked={caps.includes(c)} onChange={() => toggle(caps, setCaps, c)} />{c}</label>
+          <legend className="mb-1 text-xs font-medium text-muted">Capabilities (text and ocr inputs)</legend>
+          {TEXT_CAPS.map((c) => (
+            <label key={c} className="flex items-center gap-2 font-mono text-xs"><input type="checkbox" disabled={!textModalities} checked={caps.includes(c)} onChange={() => toggle(caps, setCaps, c)} />{c}</label>
           ))}
+          <p className="font-mono text-xs text-muted" data-testid="vision-cap">VISION_INPUT {wantsVlm ? "· on (vlm modality)" : "· off (select the vlm modality)"}</p>
         </fieldset>
       </div>
+      <fieldset className="flex flex-col gap-1.5">
+        <legend className="mb-1 text-xs font-medium text-muted">Input modalities</legend>
+        <div className="flex flex-wrap gap-x-5 gap-y-1.5">
+          {MODALITIES.map((m) => (
+            <label key={m.id} className="flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={modalities.includes(m.id)} onChange={() => toggle(modalities, setModalities, m.id)} />
+              <span className="font-mono text-xs">{m.label}</span><span className="text-xs text-muted">{m.help}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {wantsVlm && (
+        <label className="flex flex-col gap-1 text-xs text-muted">VLM prompt (optional; default asks for an exact transcription)
+          <input maxLength={300} className={field} value={vlmPrompt} onChange={(e) => setVlmPrompt(e.target.value)} placeholder="Transcribe the text in this image exactly." />
+        </label>
+      )}
+      {vlmProblem && <p className="text-xs text-amber-600 dark:text-amber-300" data-testid="vlm-problem">{vlmProblem}</p>}
       <label className="flex flex-col gap-1 text-xs text-muted">SafetyJudge label map (safety classifiers only; one <code className="font-mono">label=safe|unsafe</code> per line)
         <textarea rows={2} disabled={!canMapSafety} className={`${field} font-mono text-xs disabled:opacity-50`} value={labelMap} onChange={(e) => setLabelMap(e.target.value)} placeholder={canMapSafety ? "label=unsafe" : "No selected safety classifier"} aria-describedby="labelmap-help" />
       </label>
@@ -103,7 +140,7 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
         Only models whose task is <span className="font-mono">safety</span> can produce safety judgments. Sentiment, embedding and generation outputs are never mapped to safe/unsafe.
       </p>
       {create.isError && <p role="alert" className="text-sm text-red-500">{create.error.code}: {create.error.message}</p>}
-      <Button type="submit" variant="primary" className="w-fit" disabled={!target || modelKeys.length === 0 || caps.length === 0 || create.isPending}>
+      <Button type="submit" variant="primary" className="w-fit" disabled={!target || modelKeys.length === 0 || modalities.length === 0 || sentCaps.length === 0 || Boolean(vlmProblem) || create.isPending}>
         <Play className="size-3.5" /> Queue experiment
       </Button>
     </form>
