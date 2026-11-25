@@ -25,6 +25,7 @@ from emojilens_api.routers import (
     model_registry,
     multilingual,
     multimodal,
+    reports,
     system,
     transforms,
     unicode,
@@ -109,4 +110,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(multimodal.router, prefix=API_PREFIX)
     app.include_router(guard.router, prefix=API_PREFIX)
     app.include_router(dashboard.router, prefix=API_PREFIX)
+    app.include_router(reports.router, prefix=API_PREFIX)
     return app
