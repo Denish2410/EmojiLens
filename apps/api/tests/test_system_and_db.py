@@ -60,3 +60,27 @@ def test_migration_downgrade_and_reupgrade(db_url: str) -> None:
     assert "app_meta" not in inspect(engine).get_table_names()
     upgrade_to_head(db_url)
     assert "app_meta" in inspect(engine).get_table_names()
+
+
+def test_system_info_reports_runtime_without_private_details(client: TestClient) -> None:
+    import getpass
+    import socket
+
+    res = client.get("/api/v1/system/info")
+    assert res.status_code == 200
+    info = res.json()
+    assert info["version"]
+    assert info["database"]["ok"] is True
+    assert info["database"]["journal_mode"] == "wal"
+    assert info["database"]["migration"] == info["database"]["head"]
+    assert {m["key"] for m in info["models"]} >= {"tesseract-ocr", "vlm-smolvlm-256m"}
+    assert all("task" in m and "revision" in m for m in info["models"])
+    assert info["test_doubles_enabled"] is False
+    assert info["renderer"]["javascript"] is False
+    assert info["renderer"]["network"] is False
+    assert {d["name"] for d in info["dependencies"]} >= {"torch", "sklearn"}
+    assert info["artifacts"] == {"files": 0, "bytes": 0}
+    raw = res.text
+    for private in ("/home/", "/tmp", "/Users/", "sqlite:///", socket.gethostname()):
+        assert private not in raw
+    assert f'"{getpass.getuser()}"' not in raw
