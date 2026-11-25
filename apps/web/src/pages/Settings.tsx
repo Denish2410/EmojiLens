@@ -26,7 +26,7 @@ function bytes(n: number): string {
 
 function Row({ k, children }: { k: string; children: ReactNode }) {
   return (
-    <div className="grid grid-cols-[9rem_1fr] gap-3 px-4 py-2 text-sm sm:grid-cols-[12rem_1fr]">
+    <div className="grid grid-cols-[9rem_minmax(0,1fr)] gap-3 px-4 py-2 text-sm sm:grid-cols-[12rem_minmax(0,1fr)]">
       <dt className="text-muted">{k}</dt>
       <dd className="min-w-0 break-words font-mono text-xs leading-5">{children}</dd>
     </div>
@@ -78,7 +78,7 @@ export function Settings() {
               Test doubles are enabled. Their outputs are labelled and are never research results.
             </p>
           )}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader title="Runtime" />
               <dl className="divide-y divide-line">

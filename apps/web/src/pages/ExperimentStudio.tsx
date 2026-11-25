@@ -79,7 +79,7 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
 
   return (
     <form onSubmit={submit} aria-label="New experiment" className="flex min-w-0 flex-col gap-4 p-4">
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <label className="flex min-w-0 flex-col gap-1 text-xs text-muted">Name<input required maxLength={200} className={field} value={name} onChange={(e) => setName(e.target.value)} /></label>
         <label className="flex flex-col gap-1 text-xs text-muted">Frozen dataset version
           <select required className={field} value={target} onChange={(e) => { setTarget(e.target.value); setRecipes([]); }}>
@@ -98,7 +98,7 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
           </label>
         ))}
       </fieldset>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <fieldset className="flex flex-col gap-1.5">
           <legend className="mb-1 text-xs font-medium text-muted">Models (installed only)</legend>
           {available.length === 0 ? <p className="text-xs text-muted" data-testid="no-available-models">No installed models. See docs/MODEL_SETUP_M4.md.</p> : available.map((m) => (
@@ -164,7 +164,7 @@ function Detail({ id }: { id: number }) {
         <Progress e={e} />
       </div>
       {e.error && <p role="alert" className="rounded-md border border-red-500/30 bg-red-500/5 p-2 text-xs">{e.error}</p>}
-      <dl className="grid gap-2 text-xs sm:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
         <div><dt className="text-muted">Config hash</dt><dd className="font-mono break-all">{e.config_hash}</dd></div>
         <div><dt className="text-muted">Failed items</dt><dd className="font-mono">{e.failed_items}</dd></div>
       </dl>
@@ -218,7 +218,7 @@ export function ExperimentStudio() {
         <h1 className="text-xl font-semibold tracking-tight">Experiment Studio</h1>
         <p className="mt-1 text-sm text-muted">Configure, run, cancel and audit experiments. Every output is stored with model revision, parameters and timing.</p>
       </div>
-      <div className="grid items-start gap-6 xl:grid-cols-[28rem_1fr]">
+      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[28rem_minmax(0,1fr)]">
         <Card className="min-w-0"><CardHeader title="New experiment" /><NewExperiment onCreated={setSelected} /></Card>
         <Card className="min-w-0">
           <CardHeader title="Experiment history" />

@@ -59,7 +59,7 @@ function Results({ ev }: { ev: GuardEvaluationResult }) {
         )}
       </Card>
       {s && (
-        <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[auto_minmax(0,1fr)]">
           <Card><CardHeader title={sel} /><div className="p-4"><Confusion m={s.overall} /></div></Card>
           <Card className="min-w-0">
             <CardHeader title="By stratum" actions={
@@ -76,7 +76,7 @@ function Results({ ev }: { ev: GuardEvaluationResult }) {
         </div>
       )}
       {s && (
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {(["false_positives", "false_negatives"] as const).map((k) => (
             <Card key={k} className="min-w-0">
               <CardHeader title={`${k === "false_positives" ? "False positives" : "False negatives"} (${s.overall[k].length})`} />
@@ -125,16 +125,16 @@ export function EvaluationDashboard() {
       </div>
       <Card>
         <CardHeader title="New evaluation" />
-        <div className="grid gap-3 p-4 md:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
           <label className="flex flex-col gap-1 text-xs text-muted">Frozen version<select className={field} value={target} onChange={(e) => setTarget(e.target.value)}><option value="">Select…</option>{frozen.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}</select></label>
           <label className="flex flex-col gap-1 text-xs text-muted">Keyword baseline (comma-separated)<input className={field} value={keywords} onChange={(e) => setKeywords(e.target.value)} placeholder="password, login" /></label>
           <label className="flex flex-col gap-1 text-xs text-muted">Detector<select className={field} value={detectorId} onChange={(e) => setDetectorId(e.target.value)}><option value="">none</option>{detectors.data?.map((d) => <option key={d.id} value={d.id}>#{d.id} {d.version}</option>)}</select></label>
-          <div className="flex items-end gap-2">
+          <div className="flex flex-wrap items-end gap-2">
             <Button disabled={!target || !recipes.data?.length || train.isPending} onClick={() => train.mutate()}>Train detector (train split)</Button>
             <Button variant="primary" disabled={!target || !recipes.data?.length || runEval.isPending} onClick={() => runEval.mutate()}><Scale className="size-3.5" />{runEval.isPending ? "Running…" : "Evaluate (test split)"}</Button>
           </div>
-          {target && <p className="text-xs text-muted md:col-span-4">{recipes.data?.length ? `${recipes.data.length} recipe(s): ${recipes.data.map((r) => r.families).join(", ")}` : "No variants for this version yet."}</p>}
-          {(runEval.isError || train.isError) && <p role="alert" className="text-sm text-red-500 md:col-span-4">{(runEval.error ?? train.error)?.message}</p>}
+          {target && <p className="text-xs text-muted md:col-span-2 xl:col-span-4">{recipes.data?.length ? `${recipes.data.length} recipe(s): ${recipes.data.map((r) => r.families).join(", ")}` : "No variants for this version yet."}</p>}
+          {(runEval.isError || train.isError) && <p role="alert" className="text-sm text-red-500 md:col-span-2 xl:col-span-4">{(runEval.error ?? train.error)?.message}</p>}
         </div>
       </Card>
       {list.isPending ? <Skeleton className="h-20" /> : list.data?.length === 0 ? (

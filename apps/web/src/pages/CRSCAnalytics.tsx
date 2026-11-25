@@ -28,7 +28,7 @@ function ModelSummary({ model, rows }: { model: string; rows: MetricRow[] }) {
   const sem = rows.find((r) => r.metric === "crsc_sem" && r.stratum === "overall" && r.model === model);
   const safe = rows.find((r) => r.metric === "crsc_safe" && r.stratum === "overall" && r.model === model);
   return (
-    <li className="grid gap-4 rounded-lg border border-line bg-surface p-4 md:grid-cols-2" aria-label={`${model} summary`}>
+    <li className="grid grid-cols-1 gap-4 rounded-lg border border-line bg-surface p-4 md:grid-cols-2" aria-label={`${model} summary`}>
       <div className="flex flex-col gap-1">
         <p className="text-xs text-muted">CRSC-sem · {model}</p>
         <p className="font-mono text-3xl font-semibold tabular-nums" data-testid={`sem-${model}`}>{fmt(sem?.value)}</p>
@@ -66,7 +66,7 @@ function StratumChart({ rows, metric, stratum, model }: { rows: MetricRow[]; met
   if (data.length === 0) return <p className="p-4 text-sm text-muted">No pairs in this stratum.</p>;
   const domainMin = metric === "crsc_sem" ? -1 : 0;
   return (
-    <div className="grid gap-4 p-4 lg:grid-cols-[1fr_22rem]">
+    <div className="grid grid-cols-1 gap-4 p-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <figure aria-label={`${metric} by ${stratum} for ${model}`} className="h-64 min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, bottom: 8, left: 0 }}>

@@ -45,7 +45,7 @@ export function GuardConsole() {
         <h1 className="text-xl font-semibold tracking-tight">EmojiGuard Console</h1>
         <p className="mt-1 text-sm text-muted">Explainable assessment: located evidence, rule and detector contributions, uncertainty and a policy-based recommendation.</p>
       </div>
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_20rem]">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <Card className="min-w-0">
           <CardHeader title={<label htmlFor="guard-input">Input</label>} />
           <textarea id="guard-input" rows={3} value={text} onChange={(e) => setText(e.target.value)} spellCheck={false} className="block w-full resize-y bg-transparent p-4 text-base outline-none" />
@@ -75,7 +75,7 @@ export function GuardConsole() {
       {a && rec && (
         <>
           <Card>
-            <div className="grid gap-6 p-5 md:grid-cols-[1.2fr_1fr_1fr_1fr]">
+            <div className="grid grid-cols-1 gap-6 p-5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
               <div className="flex items-center gap-3">
                 <rec.icon className={clsx("size-9", rec.tone === "emerald" ? "text-emerald-500" : rec.tone === "amber" ? "text-amber-500" : "text-red-500")} aria-hidden="true" />
                 <div>
@@ -91,7 +91,7 @@ export function GuardConsole() {
             <p className="border-t border-line px-5 py-2 font-mono text-[11px] text-muted">guard {a.guard_version} · {a.ablation} · {a.detector_version ?? "no detector"} · {a.latency_ms.toFixed(1)} ms · sha256 {a.input_sha256.slice(0, 16)}…</p>
           </Card>
           {a.notes.length > 0 && <ul className="text-xs text-amber-600 dark:text-amber-300">{a.notes.map((n) => <li key={n}>{n}</li>)}</ul>}
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card className="min-w-0">
               <CardHeader title="Contributions" />
               {a.contributions.length === 0 ? <p className="p-4 text-sm text-muted">{a.explanation[0]}</p> : (

@@ -18,7 +18,7 @@ const SAFETY = [
   ["unsafe", "Unsafe"],
   ["unsure", "Unsure"],
 ] as const;
-const field = "rounded-md border border-line bg-surface-2 px-2 py-1 text-sm";
+const field = "min-w-0 rounded-md border border-line bg-surface-2 px-2 py-1 text-sm";
 
 function RadioGroup({ name, legend, options, value, onChange }: {
   name: string; legend: string; options: readonly (readonly [string, string])[]; value: string; onChange: (v: string) => void;
@@ -64,11 +64,11 @@ function AnnotatePanel({ annotator }: { annotator: string }) {
         <span data-testid="queue-task"><Badge>task {it.task_id}</Badge></span><Badge tone="cyan">{it.language}</Badge><Badge>guideline {it.guideline_version}</Badge>
         <span>{it.remaining} remaining</span>
       </p>
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div><p className="mb-1 text-xs text-muted">Source</p><p className="rounded-md bg-surface-2 p-3 text-lg break-words" data-testid="queue-source">{it.source_text}</p></div>
         <div><p className="mb-1 text-xs text-muted">Variant</p><p className="rounded-md bg-surface-2 p-3 text-lg break-words" data-testid="queue-variant">{it.variant_text}</p></div>
       </div>
-      <fieldset disabled={submit.isPending} className="grid gap-6 md:grid-cols-2">
+      <fieldset disabled={submit.isPending} className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <RadioGroup name="semantic" legend="Does the variant mean the same as the source?" options={SEMANTIC} value={semantic} onChange={setSemantic} />
         <RadioGroup name="safety" legend="Safety (under the guideline's synthetic policy)" options={SAFETY} value={safety} onChange={setSafety} />
       </fieldset>
@@ -98,7 +98,7 @@ function SetupPanel() {
     onSuccess: (r) => { toast(`Created ${r.created} tasks (${r.existing} existed)`); void qc.invalidateQueries({ queryKey: ["queue"] }); },
   });
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader title="Guidelines (immutable versions)" />
         <div className="flex flex-col gap-3 p-4">
@@ -111,7 +111,7 @@ function SetupPanel() {
           ) : <p className="text-xs text-muted">No guidelines yet.</p>}
           <form className="flex flex-col gap-2" aria-label="New guideline" onSubmit={(e) => { e.preventDefault(); newG.mutate(); }}>
             <div className="flex gap-2">
-              <input aria-label="Guideline version" required placeholder="version e.g. v1" className={`${field} w-28 font-mono`} value={g.version} onChange={(e) => setG({ ...g, version: e.target.value })} />
+              <input aria-label="Guideline version" required placeholder="version e.g. v1" className={`${field} w-28 shrink-0 font-mono`} value={g.version} onChange={(e) => setG({ ...g, version: e.target.value })} />
               <input aria-label="Guideline title" required placeholder="title" className={`${field} flex-1`} value={g.title} onChange={(e) => setG({ ...g, title: e.target.value })} />
             </div>
             <textarea aria-label="Guideline body" required rows={3} placeholder="Instructions shown to annotators" className={field} value={g.body} onChange={(e) => setG({ ...g, body: e.target.value })} />
@@ -148,7 +148,7 @@ function ReviewPanel() {
   const a = agreement.data;
   const fmt = (x: number | null) => (x === null ? "undefined" : x.toFixed(3));
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card>
         <CardHeader title="Agreement (semantic labels)" />
         {a && (

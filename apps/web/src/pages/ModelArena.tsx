@@ -74,7 +74,7 @@ function ResultCard({ r }: { r: InferResult }) {
         <div className="flex flex-col gap-1.5">
           <p className="text-sm">label <span className="font-mono">{String(n.label)}</span> · score <span className="font-mono">{Number(n.score).toFixed(3)}</span></p>
           {scores && Object.entries(scores).map(([k, v]) => (
-            <div key={k} className="grid grid-cols-[6rem_1fr_3.5rem] items-center gap-2 text-xs">
+            <div key={k} className="grid grid-cols-[6rem_minmax(0,1fr)_3.5rem] items-center gap-2 text-xs">
               <span className="truncate font-mono">{k}</span>
               <span className="h-1.5 rounded-full bg-surface-2"><span className="block h-1.5 rounded-full bg-violet-500/70" style={{ width: `${v * 100}%` }} /></span>
               <span className="text-right font-mono">{v.toFixed(3)}</span>
@@ -123,11 +123,11 @@ export function ModelArena() {
       <Card>
         <CardHeader title="Model registry" actions={<span className="text-xs text-muted">{models.data ? `${models.data.models.filter((m) => m.availability === "available").length} of ${models.data.models.length} available` : ""}</span>} />
         {models.isPending ? (
-          <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-40" />)}</div>
+          <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-40" />)}</div>
         ) : models.isError ? (
           <div className="flex items-center gap-3 p-4 text-sm"><span role="alert" className="text-red-500">{models.error.message}</span><Button onClick={() => void models.refetch()}>Retry</Button></div>
         ) : (
-          <ul className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Models">
+          <ul className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3" aria-label="Models">
             {models.data.models.map((m) => <ModelCard key={m.key} m={m} />)}
           </ul>
         )}
@@ -167,7 +167,7 @@ export function ModelArena() {
             </div>
           )}
           {run.isError && <p role="alert" className="text-sm text-red-500">{run.error.code}: {run.error.message}</p>}
-          {run.data && <ul className="grid gap-3 lg:grid-cols-2" aria-label="Results">{run.data.map((r) => <ResultCard key={r.model} r={r} />)}</ul>}
+          {run.data && <ul className="grid grid-cols-1 gap-3 lg:grid-cols-2" aria-label="Results">{run.data.map((r) => <ResultCard key={r.model} r={r} />)}</ul>}
         </div>
       </Card>
     </div>

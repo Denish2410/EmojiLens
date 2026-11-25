@@ -93,14 +93,14 @@ export function MultimodalLab() {
             <CardHeader title="Rendered screenshot" actions={<span className="font-mono text-xs text-muted">{r.renderer} · {r.width}×{r.height}px</span>} />
             <div className="flex flex-col gap-3 p-4">
               <div className="overflow-x-auto rounded-md border border-line bg-white p-2"><img src={imgSrc} alt="Sandboxed rendering of the original text" width={r.width} height={r.height} className="max-w-none" data-testid="mm-image" /></div>
-              <dl className="grid gap-2 text-xs sm:grid-cols-2">
+              <dl className="grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
                 <div><dt className="text-muted">Image SHA-256</dt><dd className="font-mono break-all">{r.image_sha256}</dd></div>
                 <div><dt className="text-muted">Browser · JavaScript · blocked requests</dt><dd className="font-mono">{String(r.provenance.browser)} · {String(r.provenance.javascript)} · {Array.isArray(r.provenance.network_requests_blocked) ? r.provenance.network_requests_blocked.length : 0}</dd></div>
               </dl>
               <details className="text-xs"><summary className="cursor-pointer text-muted">Rendering provenance</summary><pre className="mt-2 overflow-auto rounded bg-surface-2 p-2 font-mono">{JSON.stringify(r.provenance, null, 2)}</pre></details>
             </div>
           </Card>
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <Card className="min-w-0">
               <CardHeader title="Text path" />
               <div className="flex flex-col gap-2 p-4 text-sm">

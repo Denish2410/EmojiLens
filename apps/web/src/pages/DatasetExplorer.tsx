@@ -173,7 +173,7 @@ function VersionPanel({ slug, n }: { slug: string; n: number }) {
           title={`Version ${v.number}`}
           actions={v.frozen_at ? <Badge tone="emerald"><Lock className="mr-1 size-3" />frozen</Badge> : <Badge>not frozen</Badge>}
         />
-        <dl className="grid gap-3 p-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="grid grid-cols-1 gap-3 p-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
           <div><dt className="text-xs text-muted">Records</dt><dd className="font-mono">{v.record_count}</dd></div>
           <div><dt className="text-xs text-muted">Schema</dt><dd className="font-mono">v{v.schema_version}</dd></div>
           <div><dt className="text-xs text-muted">Split method</dt><dd className="font-mono text-xs">{v.split_method ?? "—"}</dd></div>
@@ -204,10 +204,10 @@ function VersionPanel({ slug, n }: { slug: string; n: number }) {
         )}
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader title="Distributions" />
-          <div className="grid gap-5 p-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 p-4 sm:grid-cols-2">
             <Distribution title="Language" data={d.stats.language} />
             <Distribution title="Split" data={d.stats.split} tone="cyan" />
             <Distribution title="Safety label" data={d.stats.safety_label} />
@@ -328,7 +328,7 @@ export function DatasetExplorer() {
         </Button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
         <div className="flex flex-col gap-4">
           {creating && (
             <Card>

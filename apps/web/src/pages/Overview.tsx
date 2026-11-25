@@ -16,7 +16,7 @@ function Stat({ label, value, sub, to }: { label: string; value: number; sub: Re
     <Link to={to} className="group flex min-w-0 flex-col gap-1 rounded-xl border border-line bg-surface p-4 transition-colors hover:border-violet-500/50">
       <span className="text-xs text-muted">{label}</span>
       <span className="font-mono text-2xl font-semibold tabular-nums tracking-tight">{nf.format(value)}</span>
-      <span className="truncate text-xs text-muted">{sub}</span>
+      <span className="truncate text-xs text-muted" title={typeof sub === "string" ? sub : undefined}>{sub}</span>
     </Link>
   );
 }
@@ -29,7 +29,7 @@ function Languages({ counts }: { counts: Record<string, number> }) {
       {keys.map((k) => {
         const n = counts[k] ?? 0;
         return (
-          <li key={k} className="grid grid-cols-[4.5rem_1fr_3.5rem] items-center gap-3 text-sm" title={`${k}: ${nf.format(n)} source records`}>
+          <li key={k} className="grid grid-cols-[4.5rem_minmax(0,1fr)_3.5rem] items-center gap-3 text-sm" title={`${k}: ${nf.format(n)} source records`}>
             <span className="font-mono text-xs">{k}</span>
             <div className="h-2 rounded-full bg-surface-2">
               {n > 0 && <div className="h-2 rounded-full bg-violet-500" style={{ width: `${Math.max(2, (n / max) * 100)}%` }} />}
@@ -152,7 +152,7 @@ export function Overview() {
       ) : (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            <Stat label="Datasets" value={d.datasets.total} sub={`${d.datasets.frozen_versions} frozen of ${d.datasets.versions} version(s) · ${d.datasets.by_kind.evaluation ?? 0} evaluation`} to="/datasets" />
+            <Stat label="Datasets" value={d.datasets.total} sub={`${d.datasets.frozen_versions}/${d.datasets.versions} frozen · ${d.datasets.by_kind.evaluation ?? 0} eval`} to="/datasets" />
             <Stat label="Source records" value={d.datasets.sources} sub={`${nf.format(d.transforms.variants)} variants · ${d.transforms.recipes} recipe(s)`} to="/transforms" />
             <Stat label="Models installed" value={available} sub={`${d.models.catalogue} in catalogue${d.models.test_doubles ? ` · ${d.models.test_doubles} test double` : ""}`} to="/models" />
             <Stat label="Experiments" value={exps} sub={`${nf.format(d.experiments.outputs)} outputs · ${d.experiments.reportable} reportable`} to="/experiments" />
@@ -167,7 +167,7 @@ export function Overview() {
             </Card>
           )}
 
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
             <Card>
               <CardHeader title="Research readiness" actions={<span className="font-mono text-xs text-muted">{d.readiness.filter((r) => r.ok).length}/{d.readiness.length} met</span>} />
               <ReadinessList items={d.readiness} />
@@ -178,7 +178,7 @@ export function Overview() {
             </Card>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <Card>
               <CardHeader title="Experiment states" />
               <ul className="flex flex-col gap-1.5 p-4 text-sm">

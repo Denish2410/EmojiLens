@@ -133,7 +133,7 @@ export function TransformLab() {
         </p>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[1fr_24rem]">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_24rem]">
         <Card>
           <CardHeader title={<label htmlFor="tl-input">Original text</label>} />
           <textarea id="tl-input" rows={3} value={text} spellCheck={false} onChange={(e) => setText(e.target.value)}
@@ -217,7 +217,7 @@ export function TransformLab() {
 
       {r && (
         <>
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {(
               [
                 ["Original", r.original, r.original_sha256],
@@ -271,7 +271,7 @@ export function TransformLab() {
             </ol>
           </Card>
 
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader title="Reproducibility" />
               <dl className="grid gap-2 p-4 text-xs">
