@@ -4,7 +4,7 @@
 
 | Suite | Result |
 |---|---|
-| Ruff, mypy strict (122 files incl. scripts), frozen-config lock check | pass |
+| Ruff, mypy strict (123 files incl. scripts), frozen-config lock check | pass |
 | Pytest | **332 passed**, 4 skipped (`real_model` tests: models not installed) |
 | Fresh-clone verification (`scripts/verify_fresh_clone.sh` on cb05087) | pass |
 | Vitest | **41 passed** (12 files) |
