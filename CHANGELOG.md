@@ -26,7 +26,21 @@ All notable changes are documented here. Format based on Keep a Changelog.
   (`_language`, `_language_supported`).
 - `vlm` experiment modality (render, then VISION_INPUT) with an optional prompt; Experiment Studio
   modality selection.
+- Dashboard summary endpoint and an Overview rebuilt from stored data; Settings and system page
+  (`/system/info`) with no paths or hostnames exposed.
+- `emojilens_core.repro`: shareable environment metadata, `scripts/preflight.py`, M4 smoke validation
+  (`scripts/validate_models.py`) with OCR/VLM GER read-back, and `docs/M4_VALIDATION.md`.
+- M8 `run_environments`; research-eligibility rules v1.0; `/experiments/{id}/eligibility` and `/manifest`;
+  eligibility panel and manifest download in Experiment Studio.
+- Report generator from eligible runs only (`/reports/research(.md)`, `scripts/generate_report.py`).
+- Config freezing with a lock checked in CI (`scripts/freeze_configs.py`); draft analysis plan, experiment
+  card, results template and readiness checklist; `real_model` integration tests;
+  `scripts/verify_fresh_clone.sh`.
+- E2E: Overview, Settings and a no-overflow check on every page.
 ### Fixed
+- `/models` no longer exposes the absolute model cache path.
+- Pages overflowed the viewport on phones (Transformation Lab, Annotation Studio) and on tablets
+  (Evaluation actions).
 - Non-safety classifiers (the sentiment model) can no longer have their labels mapped to safety
   judgments (API, worker and UI).
 - Annotation submit race (form now disabled while a submission is pending) and the flaky annotation E2E (CI #8).

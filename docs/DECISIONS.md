@@ -159,3 +159,25 @@ to VISION_INPUT models. VISION_INPUT never runs on text or OCR input, and `vlm` 
 capabilities. Mismatches return `modality_capability_mismatch`. Outputs record the artifact id, image
 SHA-256 and prompt, never a file path. An optional `vlm_prompt` enters the config hash only when it is set,
 so hashes of non-VLM runs are unchanged.
+
+## D-028 Research eligibility is rule-based and versioned (2026-11-26)
+**Decision:** a run may contribute numbers to a report only if it passes every rule in
+`emojilens_core.repro.eligibility` (v1.0): completed with all items processed, a frozen evaluation dataset,
+no test doubles, pinned revisions, at most 5% failed items, a config hash, and a recorded environment.
+Eligibility looks at provenance, never at results. Ineligible runs are listed with their reasons and
+contribute nothing. The dashboard's "reportable" count uses the same rules.
+
+## D-029 Environment recorded per run start (M8) (2026-11-26)
+**Decision:** `experiments.run_environments` holds one snapshot per start or resume: versions, device,
+OCR packs and git commit, with no paths, user names or hostnames. A resumed run therefore shows every
+environment that produced its outputs.
+
+## D-030 Frozen files are immutable (2026-11-26)
+**Decision:** `research/configs/LOCK.json` records the SHA-256 of frozen configs and of the analysis plan.
+CI fails if a frozen file is changed or removed, and re-freezing with new content is refused. A change
+requires a new file and a deviation-log entry.
+
+## D-031 No route-level code splitting yet (2026-11-26)
+**Context:** lazy-loading pages broke 30+ component tests that render routes synchronously.
+**Decision:** keep a single bundle (250 kB gzip) for now and record it as remaining work, rather than
+weaken the tests.

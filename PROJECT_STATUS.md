@@ -1,8 +1,10 @@
 # Project Status
 
-**Last updated:** 2026-11-25
-**Current phase:** Weeks 6–9 engineering is implemented. Real-model inference, human annotation and
-final experiments (Week 10) are blocked on external dependencies.
+**Last updated:** 2026-11-26
+**Current phase:** All engineering through Week 10 tooling is implemented: dashboard, settings, VLM
+modality, preflight and validation, eligibility, manifests, config freezing, the report generator and
+fresh-clone verification. Real-model inference, human annotation and final experiments remain blocked
+on external dependencies. See `docs/ACCEPTANCE_MATRIX.md` for the per-area acceptance status.
 
 Status legend: **Implemented** (code exists) · **Fixture-tested** (automated tests with fixtures or
 labelled test doubles) · **Real-verified** (executed with real models or engines) · **Awaiting
@@ -31,7 +33,11 @@ Fixture-only testing never counts as real-model validation.
 | W9 learned detector, baselines, ablations, M7 | ✅ | ✅ (synthetic fixture only) | n/a | real evaluation data | ⬜ |
 | W9 off-the-shelf classifier baseline | reported as unavailable | — | ❌ | **model downloads** | ⬜ |
 | W9 EmojiGuard Console, Evaluation Dashboard | ✅ | ✅ unit + E2E | — | — | ⬜ |
-| W10 final experiments, report, release | ⬜ | ⬜ | ⬜ | all of the above | ⬜ |
+| Overview dashboard (`/dashboard/summary`) and Settings (`/system/info`) | ✅ | ✅ unit + E2E | n/a | — | ✅ (engineering) |
+| Preflight + M4 smoke validation (`scripts/preflight.py`, `scripts/validate_models.py`) | ✅ | ✅ | ✅ Tesseract only | M4 run with HF models | ⬜ |
+| M8 run environments, eligibility rules, manifests, report from eligible runs | ✅ | ✅ | n/a | an eligible run | ✅ (engineering) |
+| Config freezing (`scripts/freeze_configs.py`, CI lock check), analysis plan (draft) | ✅ | ✅ | n/a | plan review + freeze | ⬜ |
+| W10 final experiments, report, release | tooling ✅ | ✅ | ⬜ | all of the above | ⬜ (no release tag) |
 
 ## Research results
 **None.** All numbers that have appeared anywhere came from synthetic fixtures or labelled test
@@ -47,15 +53,13 @@ doubles and are flagged "not research-reportable" in the UI and API. No human an
    data in the repository is the 28-record synthetic fixture.
 
 ## Remaining engineering work
-- `real_model` integration tests that execute each HF adapter (to run on the M4).
-- An Overview dashboard refresh (model availability, experiment status, dataset statistics).
-- A Settings and System page (spec M).
-- Week 10: frozen research configurations, a report generated from stored results, a fresh-clone check and a release tag.
+- Route-level code splitting: the single JS bundle is 882 kB (250 kB gzip), which triggers Vite's size warning.
+- An accessibility audit with a screen reader. Automated checks cover roles, labels and reduced motion only.
 
 ## Latest verified checkpoint
 See `git log -1 origin/main`. GitHub Actions was green through run #11; later runs are checked at each push.
 
 ## Next exact task
-On the M4 Mac: run `scripts/setup_models.py` for the embedding, generative and classifier models, then
-run `uv run pytest -m "real_model or real_ocr"` and record the results in `docs/TEST_REPORT.md`. In parallel,
-add `real_model` integration tests that execute each HF adapter, so real-inference acceptance can be ticked.
+On the M4 Mac, follow `docs/M4_VALIDATION.md`: `scripts/preflight.py --network`, then
+`scripts/setup_models.py`, then `scripts/validate_models.py`, then `uv run pytest -m "real_model or real_ocr"`.
+Record the results in `docs/TEST_REPORT.md`. Then work through `research/READINESS.md`.

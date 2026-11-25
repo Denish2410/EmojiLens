@@ -1,11 +1,12 @@
 # Test Report
 
-## 2026-11-26: Batches A–G (cloud workspace, Linux x86_64)
+## 2026-11-26: Batches A–J (cloud workspace, Linux x86_64)
 
 | Suite | Result |
 |---|---|
-| Ruff, mypy strict (107 files incl. scripts) | pass |
-| Pytest | **318 passed** |
+| Ruff, mypy strict (122 files incl. scripts), frozen-config lock check | pass |
+| Pytest | **332 passed**, 4 skipped (`real_model` tests: models not installed) |
+| Fresh-clone verification (`scripts/verify_fresh_clone.sh` on cb05087) | pass |
 | Vitest | **41 passed** (12 files) |
 | Playwright E2E (real API, real render + OCR) | **58 passed** (29 specs × desktop/mobile), including a no-overflow check on all 13 routes |
 | Responsive audit (script, 14 routes × 1440/820/390/360 px) | no element wider than the viewport after the fixes in bfb833a |

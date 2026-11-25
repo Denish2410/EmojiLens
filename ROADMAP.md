@@ -93,5 +93,8 @@ The timeline is roughly 10 weeks at 2–3 hours per day, and it is extended rath
 - [ ] Off-the-shelf safety-classifier baseline (needs a model); evaluation on real data
 
 ## Week 10 — Final Experiments and Release
-- [ ] Freeze configs, run real experiments, final report generated from stored results
-- [ ] Settings and System page; full regression; fresh-clone verification; accessibility review; release tag
+- [x] Config-freezing tooling with a CI-verified lock; reproducibility manifests; eligibility rules
+- [x] Report generator that uses eligible stored outputs only
+- [x] Settings and System page; Overview dashboard; full regression; fresh-clone verification
+- [ ] Freeze the analysis plan and configs; run real experiments; generate the final report (**blocked**: models, data, annotators)
+- [ ] Screen-reader accessibility review; release tag (only after the item above)
