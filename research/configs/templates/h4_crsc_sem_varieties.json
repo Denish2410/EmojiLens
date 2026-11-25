@@ -1,0 +1,13 @@
+{
+  "hypothesis": "H4",
+  "card": "research/templates/EXPERIMENT_CARD.md",
+  "description": "TEMPLATE, not frozen. CRSC-sem per language variety with the multilingual embedding model. Replace the dataset, version and recipe hashes with the frozen evaluation dataset's values before validating and freezing a copy in research/configs/.",
+  "name": "H4 CRSC-sem by variety",
+  "dataset": "REPLACE-evaluation-dataset-slug",
+  "version": 1,
+  "recipe_hashes": [],
+  "model_keys": ["embed-multilingual-minilm"],
+  "capabilities": ["EMBED"],
+  "modalities": ["text"],
+  "seed": 20261126
+}

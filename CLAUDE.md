@@ -48,7 +48,8 @@ languages (en, hi, gu, hi-Latn, gu-Latn) and modalities (text, OCR, VLM).
 ## Quality gates (run before every commit)
 ```
 uv run ruff check . && uv run ruff format --check .
-uv run mypy packages/core/src apps/api/src packages/core/tests apps/api/tests
+uv run mypy packages/core/src apps/api/src packages/core/tests apps/api/tests scripts
+uv run python scripts/freeze_configs.py check
 uv run pytest
 pnpm web:typecheck && pnpm web:lint && pnpm web:test && pnpm web:build
 # E2E (real API + dev server):
