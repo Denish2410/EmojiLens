@@ -31,6 +31,8 @@ describe("Experiment Studio", () => {
     expect(await screen.findByTestId("no-experiments")).toBeInTheDocument();
     expect(await screen.findByTestId("no-available-models")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /queue experiment/i })).toBeDisabled();
+    expect(screen.getByLabelText(/SafetyJudge label map/)).toBeDisabled();
+    expect(screen.getByTestId("labelmap-help")).toHaveTextContent("never mapped to safe/unsafe");
   });
 
   it("shows interrupted runs explicitly and resumes them", async () => {

@@ -331,6 +331,7 @@ export interface ModelInfo {
   adapter: string;
   capabilities: CapabilityName[];
   license: string;
+  task: string;
   revision: string | null;
   languages: string[];
   approx_ram_gb: number;

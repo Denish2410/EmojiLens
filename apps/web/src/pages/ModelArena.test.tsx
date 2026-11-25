@@ -12,8 +12,8 @@ const info = (avail: boolean): ModelsInfo => ({
   device_reason: "torch not installed",
   resources: { available_ram_gb: null, free_disk_gb: 30, cache_dir: "/x" },
   models: [
-    { key: "embed-x", model_id: "org/embed-x", adapter: "st_embedding", capabilities: ["TOKENIZE", "EMBED"], license: "Apache-2.0", revision: null, languages: ["en"], approx_ram_gb: 1, approx_disk_gb: 0.5, notes: "", test_double: false, availability: "not_downloaded", availability_detail: "no exact revision pinned", loaded: false },
-    { key: "td", model_id: "test-double/td", adapter: "test_double", capabilities: ["TOKENIZE"], license: "n/a", revision: "test-double", languages: [], approx_ram_gb: 0, approx_disk_gb: 0, notes: "", test_double: true, availability: avail ? "available" : "not_downloaded", availability_detail: "ready", loaded: false },
+    { key: "embed-x", model_id: "org/embed-x", adapter: "st_embedding", capabilities: ["TOKENIZE", "EMBED"], license: "Apache-2.0", task: "embedding", revision: null, languages: ["en"], approx_ram_gb: 1, approx_disk_gb: 0.5, notes: "", test_double: false, availability: "not_downloaded", availability_detail: "no exact revision pinned", loaded: false },
+    { key: "td", model_id: "test-double/td", adapter: "test_double", capabilities: ["TOKENIZE"], license: "n/a", task: "safety", revision: "test-double", languages: [], approx_ram_gb: 0, approx_disk_gb: 0, notes: "", test_double: true, availability: avail ? "available" : "not_downloaded", availability_detail: "ready", loaded: false },
   ],
 });
 const tdResult: InferResult = {

@@ -48,13 +48,15 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
   const create = useMutation<ExperimentRow, ApiError, void>({
     mutationFn: () => {
       const map = Object.fromEntries(labelMap.split("\n").map((l) => l.split("=").map((x) => x.trim())).filter((p) => p.length === 2 && p[0] && (p[1] === "safe" || p[1] === "unsafe")));
-      return api.createExperiment({ name, dataset: slug, version: n, recipe_hashes: recipes, model_keys: modelKeys, capabilities: caps, label_map: Object.keys(map).length ? map : null });
+      return api.createExperiment({ name, dataset: slug, version: n, recipe_hashes: recipes, model_keys: modelKeys, capabilities: caps, label_map: canMapSafety && Object.keys(map).length ? map : null });
     },
     onSuccess: (e) => { void qc.invalidateQueries({ queryKey: ["experiments"] }); onCreated(e.id); },
   });
   const toggle = (list: string[], set: (v: string[]) => void, v: string) => set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
   const submit = (e: FormEvent) => { e.preventDefault(); create.mutate(); };
   const kind = frozen.find((f) => f.key === target)?.kind;
+  const safetyModels = available.filter((m) => modelKeys.includes(m.key) && m.task === "safety");
+  const canMapSafety = safetyModels.length > 0 && caps.includes("CLASSIFY");
 
   return (
     <form onSubmit={submit} aria-label="New experiment" className="flex min-w-0 flex-col gap-4 p-4">
@@ -94,9 +96,12 @@ function NewExperiment({ onCreated }: { onCreated: (id: number) => void }) {
           ))}
         </fieldset>
       </div>
-      <label className="flex flex-col gap-1 text-xs text-muted">SafetyJudge label map (one <code className="font-mono">label=safe|unsafe</code> per line; optional)
-        <textarea rows={2} className={`${field} font-mono text-xs`} value={labelMap} onChange={(e) => setLabelMap(e.target.value)} placeholder={"negative=unsafe\npositive=safe"} />
+      <label className="flex flex-col gap-1 text-xs text-muted">SafetyJudge label map (safety classifiers only; one <code className="font-mono">label=safe|unsafe</code> per line)
+        <textarea rows={2} disabled={!canMapSafety} className={`${field} font-mono text-xs disabled:opacity-50`} value={labelMap} onChange={(e) => setLabelMap(e.target.value)} placeholder={canMapSafety ? "label=unsafe" : "No selected safety classifier"} aria-describedby="labelmap-help" />
       </label>
+      <p id="labelmap-help" className="text-xs text-muted" data-testid="labelmap-help">
+        Only models whose task is <span className="font-mono">safety</span> can produce safety judgments. Sentiment, embedding and generation outputs are never mapped to safe/unsafe.
+      </p>
       {create.isError && <p role="alert" className="text-sm text-red-500">{create.error.code}: {create.error.message}</p>}
       <Button type="submit" variant="primary" className="w-fit" disabled={!target || modelKeys.length === 0 || caps.length === 0 || create.isPending}>
         <Play className="size-3.5" /> Queue experiment

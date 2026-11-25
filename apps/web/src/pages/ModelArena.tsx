@@ -38,6 +38,7 @@ function ModelCard({ m }: { m: ModelInfo }) {
         {m.capabilities.map((c) => <Badge key={c} tone="violet">{c}</Badge>)}
       </div>
       <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-[11px]">
+        <dt className="text-muted">Task</dt><dd className="font-mono">{m.task}</dd>
         <dt className="text-muted">Revision</dt><dd className="truncate font-mono" title={m.revision ?? ""}>{m.revision ?? "not pinned"}</dd>
         <dt className="text-muted">License</dt><dd className="truncate" title={m.license}>{m.license}</dd>
         <dt className="text-muted">Memory / disk</dt><dd className="font-mono">~{m.approx_ram_gb} GB / ~{m.approx_disk_gb} GB</dd>
