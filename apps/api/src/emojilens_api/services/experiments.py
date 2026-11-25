@@ -72,6 +72,7 @@ class Unit:
     source_id: int
     variant_id: int | None
     text: str
+    language: str
     model_key: str
     capability: Capability
     modality: str
@@ -79,12 +80,13 @@ class Unit:
 
 def units(session: Session, registry: ModelRegistry, config: dict[str, Any]) -> Iterator[Unit]:
     version_id = int(config["version_id"])
-    items: list[tuple[int, int | None, str]] = [
-        (s.id, None, s.text)
+    sources = {
+        s.id: s
         for s in session.scalars(
             select(Source).where(Source.version_id == version_id).order_by(Source.id)
         )
-    ]
+    }
+    items: list[tuple[int, int | None, str]] = [(s.id, None, s.text) for s in sources.values()]
     if config.get("recipe_hashes"):
         items += [
             (v.source_id, v.id, v.text)
@@ -104,7 +106,15 @@ def units(session: Session, registry: ModelRegistry, config: dict[str, Any]) -> 
                 c = Capability(cap)
                 if c in supported:
                     for modality in config["modalities"]:
-                        yield Unit(source_id, variant_id, text, key, c, modality)
+                        yield Unit(
+                            source_id,
+                            variant_id,
+                            text,
+                            sources[source_id].language,
+                            key,
+                            c,
+                            modality,
+                        )
 
 
 def count_units(session: Session, registry: ModelRegistry, config: dict[str, Any]) -> int:
@@ -157,6 +167,10 @@ def run_experiment(
                     reading = reading_extra(art, ocr)
                     model_input = str(ocr.normalized.get("text") or "")
                 result = registry.run(unit.model_key, unit.capability, model_input)
+                declared = registry.config(unit.model_key).languages
+                supported = (unit.language in declared) if declared else None
+                coverage = {"_language": unit.language, "_language_supported": supported}
+                result = replace(result, normalized={**result.normalized, **coverage})
                 if reading is not None:
                     result = replace(result, normalized={**result.normalized, "_reading": reading})
                     if reading["ocr_error"]:

@@ -219,3 +219,31 @@ def test_sentiment_classifier_labels_cannot_become_safety_judgments(td_client: T
 def test_models_endpoint_reports_task(client: TestClient) -> None:
     models = {m["key"]: m for m in client.get("/api/v1/models").json()["models"]}
     assert models["classifier-xlmr-sentiment"]["task"] == "sentiment"
+
+
+def test_outputs_record_language_coverage(td_client: TestClient) -> None:
+    from emojilens_core.models import Capability, ModelConfig
+
+    td_client.app.state.registry.add(  # type: ignore[attr-defined]
+        ModelConfig(
+            key="td-en-only",
+            adapter="test_double",
+            model_id="test-double/en-only",
+            capabilities=(Capability.EMBED,),
+            license="n/a",
+            task="embedding",
+            languages=("hi-Latn",),
+            test_double=True,
+        )
+    )
+    recipe = dataset(td_client)
+    exp = td_client.post(
+        "/api/v1/experiments",
+        json=body(recipe, model_keys=["td-en-only", TD], capabilities=["EMBED"], label_map=None),
+    ).json()
+    run_worker(td_client)
+    items = td_client.get(f"/api/v1/experiments/{exp['id']}/outputs?page_size=200").json()["items"]
+    limited = [o for o in items if o["model_key"] == "td-en-only"]
+    assert {o["normalized"]["_language_supported"] for o in limited} == {False}
+    undeclared = [o for o in items if o["model_key"] == TD]
+    assert {o["normalized"]["_language_supported"] for o in undeclared} == {None}
