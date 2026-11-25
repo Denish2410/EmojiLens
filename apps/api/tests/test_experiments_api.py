@@ -292,3 +292,11 @@ def test_text_only_config_hash_has_no_vlm_prompt(td_client: TestClient) -> None:
     recipe = dataset(td_client)
     exp = td_client.post("/api/v1/experiments", json=body(recipe)).json()
     assert "vlm_prompt" not in exp["config"]
+
+
+def test_models_endpoint_hides_absolute_cache_path(client: TestClient) -> None:
+    from pathlib import Path
+
+    cache = client.get("/api/v1/models").json()["resources"]["cache_dir"]
+    assert not cache.startswith(str(Path.home()))
+    assert cache.startswith("~") or cache == "(configured location)"

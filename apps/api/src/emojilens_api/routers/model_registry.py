@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter, Request
@@ -91,10 +93,18 @@ def list_models(request: Request) -> ModelsResponse:
         resources={
             "available_ram_gb": res.available_ram_gb,
             "free_disk_gb": res.free_disk_gb,
-            "cache_dir": res.cache_dir,
+            "cache_dir": _display_path(res.cache_dir),
         },
         models=out,
     )
+
+
+def _display_path(path: str) -> str:
+    """Show the cache location relative to the home directory, never the absolute path."""
+    home = str(Path.home())
+    if path == home or path.startswith(home + os.sep):
+        return "~" + path[len(home) :]
+    return "(configured location)"
 
 
 @router.post(
