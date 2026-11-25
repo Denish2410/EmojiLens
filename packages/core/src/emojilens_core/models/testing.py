@@ -8,6 +8,7 @@ The API refuses to register them unless ``EMOJILENS_ENABLE_TEST_DOUBLES`` is set
 from __future__ import annotations
 
 import hashlib
+from pathlib import Path
 from typing import Any
 
 from emojilens_core.models.base import ModelAdapter
@@ -60,6 +61,13 @@ class TestDoubleAdapter(ModelAdapter):
             out = f"echo:{text[:40]}"
         return out, {"text": out}
 
+    def describe_image(
+        self, image_path: str, prompt: str, **params: Any
+    ) -> tuple[Any, dict[str, Any]]:
+        digest = hashlib.sha256(Path(image_path).read_bytes()).hexdigest()[:8]
+        out = f"test-double reading of image {digest}"
+        return out, {"text": out}
+
 
 def make_test_double_config(key: str = "test-double-all", **params: Any) -> ModelConfig:
     return ModelConfig(
@@ -71,6 +79,7 @@ def make_test_double_config(key: str = "test-double-all", **params: Any) -> Mode
             Capability.CLASSIFY,
             Capability.EMBED,
             Capability.GENERATE,
+            Capability.VISION_INPUT,
         ),
         license="n/a (test double)",
         task="safety",  # simulated safety classifier, for automated tests only

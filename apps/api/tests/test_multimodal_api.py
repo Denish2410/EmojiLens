@@ -103,3 +103,58 @@ def test_ocr_modality_experiment(td_client: TestClient) -> None:
     outs = c.get(f"/api/v1/experiments/{exp['id']}/outputs").json()["items"]
     ocr_row = next(o for o in outs if o["modality"] == "ocr")
     assert ocr_row["normalized"]["_reading"]["ocr_text"].lower().startswith("good morning")
+
+
+def test_vlm_modality_experiment_with_test_double(td_client: TestClient) -> None:
+    """Render -> VISION_INPUT on a labelled TEST DOUBLE. Not real VLM inference."""
+    c = td_client
+    c.post(
+        "/api/v1/datasets",
+        json={"slug": "vl", "name": "V", "kind": "synthetic_fixture", "license": "CC0-1.0"},
+    )
+    line = json.dumps(
+        {
+            "id": "s0",
+            "text": "good morning 🌞",
+            "language": "en",
+            "origin": "synthetic:test",
+            "license": "CC0-1.0",
+        }
+    )
+    c.post(
+        "/api/v1/datasets/vl/versions",
+        content=line.encode(),
+        headers={"Content-Type": "application/x-ndjson"},
+    )
+    c.post("/api/v1/datasets/vl/versions/1/freeze", json={"seed": 1})
+    exp = c.post(
+        "/api/v1/experiments",
+        json={
+            "name": "vlm",
+            "dataset": "vl",
+            "version": 1,
+            "model_keys": ["test-double-all"],
+            "capabilities": ["TOKENIZE", "VISION_INPUT"],
+            "modalities": ["text", "vlm"],
+            "vlm_prompt": "Read the image.",
+        },
+    ).json()
+    assert exp["total_items"] == 2  # TOKENIZE x text, VISION_INPUT x vlm; no cross pairs
+    while c.app.state.worker.run_once() is not None:  # type: ignore[attr-defined]
+        pass
+    assert c.get(f"/api/v1/experiments/{exp['id']}").json()["status"] == "completed"
+    outs = c.get(f"/api/v1/experiments/{exp['id']}/outputs").json()["items"]
+    assert {(o["capability"], o["modality"]) for o in outs} == {
+        ("TOKENIZE", "text"),
+        ("VISION_INPUT", "vlm"),
+    }
+    row = next(o for o in outs if o["modality"] == "vlm")
+    assert row["error"] is None
+    assert row["test_double"] is True
+    assert row["normalized"]["text"].startswith("test-double reading of image")
+    reading = row["normalized"]["_reading"]
+    assert reading["prompt"] == "Read the image."
+    assert len(reading["image_sha256"]) == 64
+    assert "/" not in json.dumps(reading).replace("\\/", "")  # no filesystem paths leak
+    assert row["safety"] is None
+    assert row["behavior"] is None

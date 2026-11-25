@@ -21,7 +21,12 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from emojilens_api.db import utcnow
 from emojilens_api.db.models import Experiment, ModelOutput, ModelVersion, Source, Variant
-from emojilens_api.services.multimodal import ocr_reading, reading_extra
+from emojilens_api.services.multimodal import (
+    artifact_path,
+    get_or_render,
+    ocr_reading,
+    reading_extra,
+)
 from emojilens_core.datasets import text_sha256
 from emojilens_core.models import (
     SAFETY_TASK,
@@ -31,10 +36,12 @@ from emojilens_core.models import (
     response_behavior,
 )
 from emojilens_core.models.safety import classifier_safety
+from emojilens_core.multimodal import RenderConfig
 
 log = logging.getLogger("emojilens.experiments")
 
-SUPPORTED_MODALITIES = ("text", "ocr")
+SUPPORTED_MODALITIES = ("text", "ocr", "vlm")
+DEFAULT_VLM_PROMPT = "Transcribe the text in this image exactly."
 TERMINAL = ("completed", "failed", "cancelled", "interrupted")
 
 
@@ -106,6 +113,9 @@ def units(session: Session, registry: ModelRegistry, config: dict[str, Any]) -> 
                 c = Capability(cap)
                 if c in supported:
                     for modality in config["modalities"]:
+                        # Vision input runs only on rendered images; other capabilities never do.
+                        if (modality == "vlm") != (c is Capability.VISION_INPUT):
+                            continue
                         yield Unit(
                             source_id,
                             variant_id,
@@ -160,20 +170,33 @@ def run_experiment(
                     continue
                 reading: dict[str, Any] | None = None
                 model_input = unit.text
-                if unit.modality == "ocr":
+                if unit.modality == "vlm":
+                    if artifacts_root is None:
+                        raise RuntimeError("vlm modality requires an artifacts directory")
+                    art = get_or_render(session, artifacts_root, unit.text, RenderConfig())
+                    prompt = str(config.get("vlm_prompt") or DEFAULT_VLM_PROMPT)
+                    reading = {
+                        "artifact_id": art.id,
+                        "image_sha256": art.image_sha256,
+                        "prompt": prompt,
+                    }
+                    image = str(artifact_path(artifacts_root, art))
+                    result = registry.run(unit.model_key, unit.capability, image, prompt=prompt)
+                elif unit.modality == "ocr":
                     if artifacts_root is None:
                         raise RuntimeError("ocr modality requires an artifacts directory")
                     art, ocr = ocr_reading(session, artifacts_root, registry, unit.text)
                     reading = reading_extra(art, ocr)
                     model_input = str(ocr.normalized.get("text") or "")
-                result = registry.run(unit.model_key, unit.capability, model_input)
+                if unit.modality != "vlm":
+                    result = registry.run(unit.model_key, unit.capability, model_input)
                 declared = registry.config(unit.model_key).languages
                 supported = (unit.language in declared) if declared else None
                 coverage = {"_language": unit.language, "_language_supported": supported}
                 result = replace(result, normalized={**result.normalized, **coverage})
                 if reading is not None:
                     result = replace(result, normalized={**result.normalized, "_reading": reading})
-                    if reading["ocr_error"]:
+                    if reading.get("ocr_error"):
                         result = replace(
                             result,
                             error={

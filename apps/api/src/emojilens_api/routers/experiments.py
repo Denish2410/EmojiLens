@@ -28,8 +28,11 @@ class ExperimentIn(BaseModel):
     version: int = Field(ge=1)
     recipe_hashes: list[str] = Field(default_factory=list, max_length=20)
     model_keys: list[str] = Field(min_length=1, max_length=10)
-    capabilities: list[Literal["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE"]] = Field(min_length=1)
-    modalities: list[Literal["text", "ocr"]] = Field(default=["text"], min_length=1)
+    capabilities: list[Literal["TOKENIZE", "CLASSIFY", "EMBED", "GENERATE", "VISION_INPUT"]] = (
+        Field(min_length=1)
+    )
+    modalities: list[Literal["text", "ocr", "vlm"]] = Field(default=["text"], min_length=1)
+    vlm_prompt: str | None = Field(default=None, min_length=1, max_length=300)
     seed: int = Field(default=0, ge=0)
     label_map: dict[str, Literal["safe", "unsafe"]] | None = None
 
@@ -127,13 +130,25 @@ def create(body: ExperimentIn, request: Request) -> ExperimentOut:
             )
     if any(m not in SUPPORTED_MODALITIES for m in body.modalities):
         raise ApiError(422, "modality_unsupported", "Unsupported modality.")
+    if ("vlm" in body.modalities) != ("VISION_INPUT" in body.capabilities):
+        raise ApiError(
+            422,
+            "modality_capability_mismatch",
+            "The 'vlm' modality needs the VISION_INPUT capability, and VISION_INPUT runs only "
+            "with the 'vlm' modality.",
+        )
+    if body.vlm_prompt is not None and "vlm" not in body.modalities:
+        raise ApiError(422, "vlm_prompt_without_vlm", "vlm_prompt applies only to 'vlm' runs.")
     with request.app.state.sessionmaker() as session:
         version = svc.get_version(session, body.dataset, body.version)
         if version.frozen_at is None:
             raise ApiError(
                 409, "version_not_frozen", "Experiments run on frozen dataset versions only."
             )
-        config = body.model_dump() | {
+        dumped = body.model_dump()
+        if dumped["vlm_prompt"] is None:
+            del dumped["vlm_prompt"]  # keep config hashes of non-VLM runs unchanged
+        config = dumped | {
             "version_id": version.id,
             "dataset_kind": version.dataset.kind,
         }

@@ -247,3 +247,48 @@ def test_outputs_record_language_coverage(td_client: TestClient) -> None:
     assert {o["normalized"]["_language_supported"] for o in limited} == {False}
     undeclared = [o for o in items if o["model_key"] == TD]
     assert {o["normalized"]["_language_supported"] for o in undeclared} == {None}
+
+
+def test_vlm_modality_validation(td_client: TestClient) -> None:
+    from emojilens_core.models import Capability, ModelConfig
+
+    recipe = dataset(td_client)
+    post = td_client.post
+    no_cap = post("/api/v1/experiments", json=body(recipe, modalities=["vlm"], label_map=None))
+    assert no_cap.status_code == 422
+    assert no_cap.json()["error"]["code"] == "modality_capability_mismatch"
+    no_mod = post(
+        "/api/v1/experiments", json=body(recipe, capabilities=["VISION_INPUT"], label_map=None)
+    )
+    assert no_mod.json()["error"]["code"] == "modality_capability_mismatch"
+    stray = post("/api/v1/experiments", json=body(recipe, vlm_prompt="x", label_map=None))
+    assert stray.json()["error"]["code"] == "vlm_prompt_without_vlm"
+    # The real catalogue classifier has no vision input, so it cannot join a VLM-only run.
+    td_client.app.state.registry.add(  # type: ignore[attr-defined]
+        ModelConfig(
+            key="td-text-only",
+            adapter="test_double",
+            model_id="test-double/text-only",
+            capabilities=(Capability.EMBED,),
+            license="n/a",
+            task="embedding",
+            test_double=True,
+        )
+    )
+    blind = post(
+        "/api/v1/experiments",
+        json=body(
+            recipe,
+            model_keys=["td-text-only"],
+            capabilities=["VISION_INPUT"],
+            modalities=["vlm"],
+            label_map=None,
+        ),
+    )
+    assert blind.json()["error"]["code"] == "capability_unsupported"
+
+
+def test_text_only_config_hash_has_no_vlm_prompt(td_client: TestClient) -> None:
+    recipe = dataset(td_client)
+    exp = td_client.post("/api/v1/experiments", json=body(recipe)).json()
+    assert "vlm_prompt" not in exp["config"]
