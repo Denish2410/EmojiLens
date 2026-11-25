@@ -96,3 +96,14 @@ def test_pins_file_sets_exact_revisions(tmp_path: Path) -> None:
         AvailabilityStatus.DEPENDENCY_MISSING,
         AvailabilityStatus.NOT_DOWNLOADED,
     )
+
+
+def test_every_catalogue_model_declares_its_task() -> None:
+    from emojilens_core.models import MODEL_TASKS
+
+    for c in CATALOG:
+        assert c.task in MODEL_TASKS
+        assert c.task != "unspecified", c.key
+    sentiment = next(c for c in CATALOG if c.key == "classifier-xlmr-sentiment")
+    assert sentiment.task == "sentiment"
+    assert not any(c.task == "safety" for c in CATALOG)  # no validated safety classifier yet

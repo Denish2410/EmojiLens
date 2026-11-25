@@ -22,6 +22,7 @@ TESSERACT_CONFIG = ModelConfig(
     adapter="tesseract",
     model_id="tesseract",
     capabilities=(Capability.OCR,),
+    task="ocr",
     license="Apache-2.0 (Tesseract); traineddata per tessdata license (Apache-2.0)",
     languages=("en", "hi", "gu"),
     params={"langs": "eng+hin+guj", "psm": 6, "timeout_s": 60},

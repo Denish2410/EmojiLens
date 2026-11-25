@@ -184,3 +184,38 @@ def test_api_registry_applies_model_pins(migrated_db_url: str, tmp_path: object)
     with TestClient(app) as c:
         models = {m["key"]: m for m in c.get("/api/v1/models").json()["models"]}
     assert models["embed-multilingual-minilm"]["revision"] == "b" * 40
+
+
+def test_sentiment_classifier_labels_cannot_become_safety_judgments(td_client: TestClient) -> None:
+    """Regression: a sentiment model must never feed CRSC-safe through a label map."""
+    from emojilens_core.models import Capability, ModelConfig
+
+    reg = td_client.app.state.registry  # type: ignore[attr-defined]
+    reg.add(
+        ModelConfig(
+            key="td-sentiment",
+            adapter="test_double",
+            model_id="test-double/sentiment",
+            capabilities=(Capability.CLASSIFY,),
+            license="n/a",
+            task="sentiment",
+            test_double=True,
+        )
+    )
+    recipe = dataset(td_client)
+    r = td_client.post(
+        "/api/v1/experiments",
+        json=body(recipe, model_keys=["td-sentiment"], capabilities=["CLASSIFY"]),
+    )
+    assert r.status_code == 422
+    assert r.json()["error"]["code"] == "not_a_safety_classifier"
+    ok = td_client.post(
+        "/api/v1/experiments",
+        json=body(recipe, model_keys=["td-sentiment"], capabilities=["CLASSIFY"], label_map=None),
+    )
+    assert ok.status_code == 201
+
+
+def test_models_endpoint_reports_task(client: TestClient) -> None:
+    models = {m["key"]: m for m in client.get("/api/v1/models").json()["models"]}
+    assert models["classifier-xlmr-sentiment"]["task"] == "sentiment"

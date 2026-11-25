@@ -73,6 +73,7 @@ def make_test_double_config(key: str = "test-double-all", **params: Any) -> Mode
             Capability.GENERATE,
         ),
         license="n/a (test double)",
+        task="safety",  # simulated safety classifier, for automated tests only
         revision="test-double",
         params=params,
         notes="TEST DOUBLE: not a model; for automated tests only.",

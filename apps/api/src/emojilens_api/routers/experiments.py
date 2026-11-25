@@ -16,7 +16,7 @@ from emojilens_api.services.experiments import (
     config_hash,
     count_units,
 )
-from emojilens_core.models import Capability, ModelError, ModelRegistry
+from emojilens_core.models import SAFETY_TASK, Capability, ModelError, ModelRegistry
 
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 
@@ -118,6 +118,13 @@ def create(body: ExperimentIn, request: Request) -> ExperimentOut:
         av = reg.availability(key)
         if not av.ok:
             raise ApiError(409, av.status.value, f"{key} is not available: {av.detail}")
+        classifies = "CLASSIFY" in body.capabilities and Capability.CLASSIFY in cfg.capabilities
+        if body.label_map and classifies and cfg.task != SAFETY_TASK:
+            raise ApiError(
+                422,
+                "not_a_safety_classifier",
+                f"{key} is a '{cfg.task}' model; its labels cannot be mapped to safety judgments.",
+            )
     if any(m not in SUPPORTED_MODALITIES for m in body.modalities):
         raise ApiError(422, "modality_unsupported", "Unsupported modality.")
     with request.app.state.sessionmaker() as session:

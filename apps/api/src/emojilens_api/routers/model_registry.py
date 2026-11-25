@@ -17,6 +17,7 @@ class ModelOut(BaseModel):
     adapter: str
     capabilities: list[str]
     license: str
+    task: str
     revision: str | None
     languages: list[str]
     approx_ram_gb: float
@@ -72,6 +73,7 @@ def list_models(request: Request) -> ModelsResponse:
                 adapter=c.adapter,
                 capabilities=[x.value for x in c.capabilities],
                 license=c.license,
+                task=c.task,
                 revision=c.revision,
                 languages=list(c.languages),
                 approx_ram_gb=c.approx_ram_gb,

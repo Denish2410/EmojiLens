@@ -39,6 +39,18 @@ class ModelError(Exception):
         return {"code": self.code.value, "message": self.message, "details": self.details}
 
 
+SAFETY_TASK = "safety"
+MODEL_TASKS = (
+    "safety",
+    "sentiment",
+    "embedding",
+    "generation",
+    "ocr",
+    "vision_language",
+    "unspecified",
+)
+
+
 @dataclass(frozen=True, slots=True)
 class ModelConfig:
     """Declarative model entry. ``revision`` pins an exact commit; None means not yet pinned."""
@@ -48,6 +60,8 @@ class ModelConfig:
     model_id: str
     capabilities: tuple[Capability, ...]
     license: str
+    # What the model was trained to do. Only task == "safety" may feed safety judgments.
+    task: str = "unspecified"
     revision: str | None = None
     tokenizer_revision: str | None = None
     languages: tuple[str, ...] = ()

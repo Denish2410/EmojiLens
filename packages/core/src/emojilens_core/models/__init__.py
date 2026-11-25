@@ -12,6 +12,8 @@ from emojilens_core.models.safety import (
     response_behavior,
 )
 from emojilens_core.models.types import (
+    MODEL_TASKS,
+    SAFETY_TASK,
     Availability,
     AvailabilityStatus,
     Capability,
@@ -25,6 +27,8 @@ from emojilens_core.models.types import (
 
 __all__ = [
     "JUDGE_VERSION",
+    "MODEL_TASKS",
+    "SAFETY_TASK",
     "Availability",
     "AvailabilityStatus",
     "Capability",

@@ -23,7 +23,13 @@ from emojilens_api.db import utcnow
 from emojilens_api.db.models import Experiment, ModelOutput, ModelVersion, Source, Variant
 from emojilens_api.services.multimodal import ocr_reading, reading_extra
 from emojilens_core.datasets import text_sha256
-from emojilens_core.models import Capability, ModelRegistry, SafetyJudge, response_behavior
+from emojilens_core.models import (
+    SAFETY_TASK,
+    Capability,
+    ModelRegistry,
+    SafetyJudge,
+    response_behavior,
+)
 from emojilens_core.models.safety import classifier_safety
 
 log = logging.getLogger("emojilens.experiments")
@@ -165,7 +171,8 @@ def run_experiment(
                 behavior = safety = None
                 if unit.capability is Capability.GENERATE:
                     behavior = response_behavior(result)[0].value
-                if unit.capability is Capability.CLASSIFY and judge is not None:
+                is_safety_model = registry.config(unit.model_key).task == SAFETY_TASK
+                if unit.capability is Capability.CLASSIFY and judge is not None and is_safety_model:
                     safety = classifier_safety(result, judge.label_map, judge.unsafe_threshold)[
                         0
                     ].value

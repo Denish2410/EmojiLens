@@ -23,6 +23,7 @@ from emojilens_core.models.types import Capability, ModelConfig
 CATALOG: tuple[ModelConfig, ...] = (
     ModelConfig(
         key="classifier-xlmr-sentiment",
+        task="sentiment",
         adapter="hf_classifier",
         model_id="cardiffnlp/twitter-xlm-roberta-base-sentiment",
         capabilities=(Capability.TOKENIZE, Capability.CLASSIFY),
@@ -35,6 +36,7 @@ CATALOG: tuple[ModelConfig, ...] = (
     ),
     ModelConfig(
         key="embed-multilingual-minilm",
+        task="embedding",
         adapter="st_embedding",
         model_id="sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         capabilities=(Capability.TOKENIZE, Capability.EMBED),
@@ -45,6 +47,7 @@ CATALOG: tuple[ModelConfig, ...] = (
     ),
     ModelConfig(
         key="gen-qwen2.5-0.5b-instruct",
+        task="generation",
         adapter="hf_generative",
         model_id="Qwen/Qwen2.5-0.5B-Instruct",
         capabilities=(Capability.TOKENIZE, Capability.GENERATE),
@@ -57,6 +60,7 @@ CATALOG: tuple[ModelConfig, ...] = (
     TESSERACT_CONFIG,
     ModelConfig(
         key="vlm-smolvlm-256m",
+        task="vision_language",
         adapter="hf_vlm",
         model_id="HuggingFaceTB/SmolVLM-256M-Instruct",
         capabilities=(Capability.VISION_INPUT,),
