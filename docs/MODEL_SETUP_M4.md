@@ -55,6 +55,8 @@ it. Adapters load only with `local_files_only=True`, `trust_remote_code=False` a
 A model that is unpinned or missing from the cache shows as *not downloaded* in the Model Arena.
 
 ## 5. Verify real inference
+First run the preflight and smoke validation in `docs/M4_VALIDATION.md`
+(`scripts/preflight.py`, then `scripts/validate_models.py`). Then:
 ```bash
 scripts/dev-api.sh &                       # API on 127.0.0.1:8000
 uv run pytest -m "real_model or real_ocr"  # real-model tests

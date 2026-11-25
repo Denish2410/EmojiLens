@@ -1,5 +1,31 @@
 # Test Report
 
+## 2026-11-26: Batches A–G (cloud workspace, Linux x86_64)
+
+| Suite | Result |
+|---|---|
+| Ruff, mypy strict (107 files incl. scripts) | pass |
+| Pytest | **318 passed** |
+| Vitest | **41 passed** (12 files) |
+| Playwright E2E (real API, real render + OCR) | **58 passed** (29 specs × desktop/mobile), including a no-overflow check on all 13 routes |
+| Responsive audit (script, 14 routes × 1440/820/390/360 px) | no element wider than the viewport after the fixes in bfb833a |
+
+**`scripts/preflight.py` in the cloud workspace:** FAIL as expected. torch, transformers,
+sentence-transformers and huggingface_hub are not installed, and huggingface.co is blocked. Tesseract
+5.3.4 lacks the `guj` pack.
+
+**`scripts/validate_models.py` in the cloud workspace** (real execution; this is not the M4):
+
+| Model | Executed | Skipped | Note |
+|---|---|---|---|
+| classifier-xlmr-sentiment, embed-multilingual-minilm, gen-qwen2.5-0.5b-instruct | 0 | 10 each | dependency_missing (torch not installed) |
+| vlm-smolvlm-256m | 0 | 5 | dependency_missing |
+| tesseract-ocr (eng+hin) | 5/5, deterministic | 0 | GER: en 0.065, hi 0.053, hi-Latn 0.029, gu-Latn 0.032, **gu 0.824** |
+
+The high GER for Gujarati comes from the missing `guj` pack: Tesseract read the Gujarati script as
+Devanagari or Latin. The residual GER on the other varieties is mostly the emoji, which Tesseract reads
+as `©` or `@`. This is an engineering observation about this environment, not a research finding.
+
 ## 2026-11-25: Weeks 6–9
 
 | Suite | Result |
