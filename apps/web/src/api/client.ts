@@ -19,6 +19,7 @@ import type {
   GenerateResult,
   TransformSpec,
   Dataset,
+  DashboardSummary,
   DatasetKind,
   Health,
   ImportResult,
@@ -78,6 +79,7 @@ async function request<T>(path: string, init?: RequestInit, allow?: number[]): P
 export const api = {
   health: () => request<Health>("/health"),
   ready: () => request<Readiness>("/ready", undefined, [503]),
+  dashboard: () => request<DashboardSummary>("/dashboard/summary"),
   analyzeUnicode: (text: string) =>
     request<UnicodeAnalysis>("/unicode/analyze", {
       method: "POST",

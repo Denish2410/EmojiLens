@@ -14,6 +14,21 @@ export const handlers = [
       ],
     }),
   ),
+  http.get("*/api/v1/dashboard/summary", () =>
+    HttpResponse.json({
+      datasets: { total: 0, by_kind: {}, versions: 0, frozen_versions: 0, sources: 0 },
+      languages: {},
+      transforms: { variants: 0, invalid_variants: 0, recipes: 0, families: [] },
+      annotation: { annotators: 0, annotations: 0, adjudications: 0 },
+      models: { catalogue: 5, test_doubles: 0, availability: { not_downloaded: 4, available: 1 } },
+      experiments: { by_status: {}, outputs: 0, failed_outputs: 0, test_double_outputs: 0, reportable: 0 },
+      crsc: { metric_rows: 0, experiments: 0 },
+      multimodal: { render_artifacts: 0 },
+      guard: { evaluations: 0, detector_artifacts: 0 },
+      readiness: [{ key: "evaluation_dataset", label: "Frozen evaluation dataset", ok: false, detail: "0 frozen evaluation version(s)" }],
+      reportable: false,
+    }),
+  ),
 ];
 
 export const server = setupServer(...handlers);

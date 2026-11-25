@@ -503,3 +503,19 @@ export interface GuardEvaluationResult {
     items: Record<string, { text: string; label: number; language: string; family: string }>;
   };
 }
+
+// ---- Dashboard ----
+export interface ReadinessItem { key: string; label: string; ok: boolean; detail: string }
+export interface DashboardSummary {
+  datasets: { total: number; by_kind: Record<string, number>; versions: number; frozen_versions: number; sources: number };
+  languages: Record<string, number>;
+  transforms: { variants: number; invalid_variants: number; recipes: number; families: string[] };
+  annotation: { annotators: number; annotations: number; adjudications: number };
+  models: { catalogue: number; test_doubles: number; availability: Record<string, number> };
+  experiments: { by_status: Record<string, number>; outputs: number; failed_outputs: number; test_double_outputs: number; reportable: number };
+  crsc: { metric_rows: number; experiments: number };
+  multimodal: { render_artifacts: number };
+  guard: { evaluations: number; detector_artifacts: number };
+  readiness: ReadinessItem[];
+  reportable: boolean;
+}
