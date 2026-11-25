@@ -21,6 +21,12 @@ from emojilens_core.models import ModelRegistry
 REPORT_SCHEMA = "emojilens.report/1"
 
 
+def _cell(text: object) -> str:
+    """User-supplied text (run names, reasons) as a single inert Markdown table cell."""
+    flat = " ".join(str(text).split())
+    return flat.replace("\\", "\\\\").replace("|", "\\|").replace("<", "&lt;")
+
+
 def _fmt(v: float | None) -> str:
     return "—" if v is None else f"{v:.3f}"
 
@@ -127,8 +133,8 @@ def render_markdown(report: dict[str, Any]) -> str:
         for s in report["screened"]:
             reasons = "; ".join(s["blocking"]) or "—"
             out.append(
-                f"| #{s['id']} {s['name']} | {s['status']} | {'yes' if s['eligible'] else 'no'} "
-                f"| {reasons} |"
+                f"| #{s['id']} {_cell(s['name'])} | {s['status']} "
+                f"| {'yes' if s['eligible'] else 'no'} | {_cell(reasons)} |"
             )
         out.append("")
     if not report["included"]:
@@ -143,7 +149,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         m = inc["manifest"]
         e, d = m["experiment"], m["dataset"]
         out += [
-            f"## Run #{e['id']}: {e['name']}",
+            f"## Run #{e['id']}: {_cell(e['name'])}",
             "",
             f"- Config hash `{e['config_hash']}`; outputs digest `{m['outputs']['sha256']}` "
             f"({m['outputs']['count']} outputs)",

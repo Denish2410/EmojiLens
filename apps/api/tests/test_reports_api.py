@@ -85,3 +85,24 @@ def test_markdown_renders_an_included_run() -> None:
     assert "| m | gu | text | EMBED | 2 | 0 |" in md
     assert "| crsc_sem v0.1 | m | language=gu | — | [—, —] | 2 | 1 |" in md
     assert "contains no results" not in md
+
+
+def test_user_text_cannot_break_report_tables() -> None:
+    from emojilens_api.services.reporting import render_markdown
+
+    report = {
+        "generated_at": "t",
+        "screened": [
+            {
+                "id": 1,
+                "name": "a | b\n# x <img>",
+                "status": "queued",
+                "eligible": False,
+                "blocking": ["r|1"],
+            }
+        ],
+        "included": [],
+    }
+    md = render_markdown(report)
+    row = next(line for line in md.splitlines() if line.startswith("| #1"))
+    assert row == "| #1 a \\| b # x &lt;img> | queued | no | r\\|1 |"
