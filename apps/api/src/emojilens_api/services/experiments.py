@@ -37,9 +37,12 @@ from emojilens_core.models import (
 )
 from emojilens_core.models.safety import classifier_safety
 from emojilens_core.multimodal import RenderConfig
+from emojilens_core.repro import environment_metadata
 
 log = logging.getLogger("emojilens.experiments")
 
+# Repository root in a source checkout; git metadata is simply absent elsewhere.
+REPO_ROOT = Path(__file__).resolve().parents[5]
 SUPPORTED_MODALITIES = ("text", "ocr", "vlm")
 DEFAULT_VLM_PROMPT = "Transcribe the text in this image exactly."
 TERMINAL = ("completed", "failed", "cancelled", "interrupted")
@@ -143,6 +146,8 @@ def run_experiment(
         if exp is None or exp.status not in ("queued",):
             return exp.status if exp else "missing"
         exp.status, exp.started_at, exp.error = "running", utcnow(), None
+        snapshot = {"started_at": exp.started_at.isoformat(), **environment_metadata(REPO_ROOT)}
+        exp.run_environments = [*(exp.run_environments or []), snapshot]
         session.commit()
         config = dict(exp.config)
         judge = SafetyJudge(config["label_map"]) if config.get("label_map") else None

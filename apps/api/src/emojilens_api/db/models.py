@@ -232,6 +232,8 @@ class Experiment(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # M8: one environment snapshot per run start (first run, then each resume).
+    run_environments: Mapped[list[dict[str, Any]] | None] = mapped_column(JSON, nullable=True)
 
 
 class ModelOutput(Base):
