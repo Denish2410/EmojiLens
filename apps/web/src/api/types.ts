@@ -519,3 +519,20 @@ export interface DashboardSummary {
   readiness: ReadinessItem[];
   reportable: boolean;
 }
+
+// ---- System ----
+export interface SystemInfo {
+  version: string;
+  python: string;
+  platform: string;
+  device: string;
+  device_reason: string;
+  database: { ok: boolean; journal_mode?: string; migration?: string | null; head?: string; backend?: string; error?: string };
+  models: { key: string; model_id: string; task: string; revision: string | null; availability: string; test_double: boolean }[];
+  ocr_languages: string[];
+  renderer: { engine: string; playwright_installed: boolean; custom_executable: boolean; javascript: boolean; network: boolean };
+  artifacts: { files: number; bytes: number };
+  dependencies: { name: string; purpose: string; installed: boolean; version: string | null }[];
+  test_doubles_enabled: boolean;
+  limits: Record<string, number>;
+}

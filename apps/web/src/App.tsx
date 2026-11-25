@@ -14,6 +14,7 @@ import { ModelArena } from "./pages/ModelArena";
 import { MultimodalLab } from "./pages/MultimodalLab";
 import { MultilingualLab } from "./pages/MultilingualLab";
 import { Overview } from "./pages/Overview";
+import { Settings } from "./pages/Settings";
 import { TransformLab } from "./pages/TransformLab";
 import { UnicodeInspector } from "./pages/UnicodeInspector";
 
@@ -44,6 +45,7 @@ export function AppRoutes() {
         <Route path="multimodal" element={<MultimodalLab />} />
         <Route path="guard" element={<GuardConsole />} />
         <Route path="evaluation" element={<EvaluationDashboard />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="datasets/:slug" element={<DatasetExplorer />} />
         <Route path="*" element={<NotFound />} />
       </Route>

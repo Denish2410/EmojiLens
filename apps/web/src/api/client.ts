@@ -20,6 +20,7 @@ import type {
   TransformSpec,
   Dataset,
   DashboardSummary,
+  SystemInfo,
   DatasetKind,
   Health,
   ImportResult,
@@ -80,6 +81,7 @@ export const api = {
   health: () => request<Health>("/health"),
   ready: () => request<Readiness>("/ready", undefined, [503]),
   dashboard: () => request<DashboardSummary>("/dashboard/summary"),
+  systemInfo: () => request<SystemInfo>("/system/info"),
   analyzeUnicode: (text: string) =>
     request<UnicodeAnalysis>("/unicode/analyze", {
       method: "POST",
