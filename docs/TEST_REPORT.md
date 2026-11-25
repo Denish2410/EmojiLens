@@ -6,7 +6,7 @@
 |---|---|
 | Ruff, mypy strict (123 files incl. scripts), frozen-config lock check | pass |
 | Pytest | **332 passed**, 4 skipped (`real_model` tests: models not installed) |
-| Fresh-clone verification (`scripts/verify_fresh_clone.sh` on cb05087) | pass |
+| Fresh-clone verification (`scripts/verify_fresh_clone.sh` on d9d4d2a) | pass |
 | Vitest | **41 passed** (12 files) |
 | Playwright E2E (real API, real render + OCR) | **58 passed** (29 specs × desktop/mobile), including a no-overflow check on all 13 routes |
 | Responsive audit (script, 14 routes × 1440/820/390/360 px) | no element wider than the viewport after the fixes in bfb833a |

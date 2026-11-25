@@ -32,7 +32,7 @@ research validation.
 | Eligibility rules and manifests (I) | **Fully accepted** (engineering) | core + API tests | — |
 | Config freezing and lock (I) | **Fully accepted** (engineering) | unit + script tests; CI check | analysis plan not yet frozen |
 | Report from eligible runs only (I) | **Fully accepted** (engineering) | API tests (ineligible runs excluded) | an eligible run to report |
-| Fresh-clone verification (I) | **Fully accepted** | `scripts/verify_fresh_clone.sh` passed on cb05087 | — |
+| Fresh-clone verification (I) | **Fully accepted** | `scripts/verify_fresh_clone.sh` passed on d9d4d2a | — |
 | Analysis plan (H) | Implemented (draft) | `research/ANALYSIS_PLAN.md` | review and freeze |
 | Literature review | Blocked | — | verified references |
 | Research results | **Not started** | the report generator states "no eligible runs" | everything above marked Blocked |
